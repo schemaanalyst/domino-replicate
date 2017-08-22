@@ -220,6 +220,332 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
   }
 }
 
+#' FUNCTION: table_generator_coverage_others
+#'
+#' Generates a latex table or a data frame for coverage table with effect size and U test.
+#' @param d Data frame of analysis
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of coverages compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_coverage_others <- function(d, rtrn = "tex", m = "median") {
+  # Arrange dataframe by case study
+  d <- d %>% dplyr::arrange(casestudy)
+  d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
+  # Store the dataframe into another var
+  d1 <- d
+  # generate a DF for mean or median
+  if (m == "mean") {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(coverage = format(round((mean(coverage)), 1), nsmall = 1))
+  } else {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(coverage = format(round((median(coverage)), 1), nsmall = 1))
+  }
+  #browser()
+  # filp the data frame
+  d <- reshape2::dcast(d, casestudy ~ dbms + datagenerator, value.var=c("coverage"))
+  # get header
+  a1 <- d[1]
+  # Split by DBMS
+  d2 <- d[2:13]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:4]
+  c <- c[c(3,1,2,4)]
+  a <- d[5:8]
+  a <- a[c(3,1,2,4)]
+  b <- d[9:12]
+  b <- b[c(3,1,2,4)]
+  # change the schemas from fectors to char
+  a1$casestudy <- as.character(a1$casestudy)
+  # get nunber of rows and itrate through them
+  numberOfRows <- nrow(d)
+  for (i in 1:numberOfRows) {
+    schema <- a1[i,]
+    # get each generators
+    dr <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    avm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "avs")
+    avmd <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "avsDefaults")
+    rand <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "random")
+
+    # Effect size for PSQL
+    postgres_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+                                                (avm %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
+    postgres_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+                                                 (avmd %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
+    postgres_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+                                                 (rand %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
+
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "Postgres"))$coverage
+
+    # get coverage
+    avmr_coverage <- (avm %>% dplyr::filter(dbms == "Postgres"))$coverage
+
+    a[i,2] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = avmr_coverage,
+                           effect = postgres_avm,
+                           result = a[i,2])
+
+
+    # get coverage
+    avmd_coverage <- (avmd %>% dplyr::filter(dbms == "Postgres"))$coverage
+    a[i,3] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = avmd_coverage,
+                           effect = postgres_avmd,
+                           result = a[i,3])
+
+
+    # U-test Random vs DR
+    rand_coverage <- (rand %>% dplyr::filter(dbms == "Postgres"))$coverage
+
+    a[i,4] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = rand_coverage,
+                           effect = postgres_rand,
+                           result = a[i,4])
+
+
+    # get SQLite effect size
+    sqlite_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+                                              (avm %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
+    sqlite_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+                                               (avmd %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
+    sqlite_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+                                               (rand %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
+
+    # get coverage
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "SQLite"))$coverage
+
+    # U-test AVMR vs DR
+    avmr_coverage <- (avm %>% dplyr::filter(dbms == "SQLite"))$coverage
+    b[i,2] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = avmr_coverage,
+                           effect = sqlite_avm,
+                           result = b[i,2])
+
+
+
+    # U-test AVMD vs DR
+    avmd_coverage <- (avmd %>% dplyr::filter(dbms == "SQLite"))$coverage
+    b[i,3] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = avmd_coverage,
+                           effect = sqlite_avmd,
+                           result = b[i,3])
+
+
+    # U-test Random vs DR
+    rand_coverage <- (rand %>% dplyr::filter(dbms == "SQLite"))$coverage
+    b[i,4] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = rand_coverage,
+                           effect = sqlite_rand,
+                           result = b[i,4])
+
+    # calculate effect size for coverage for HSQL
+    hsql_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+                                            (avm %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
+    hsql_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+                                             (avmd %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
+    hsql_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+                                             (rand %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
+
+    # U-test DRAVM vs DR
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+
+    # U-test AVMR vs DR
+    avmr_coverage <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+    c[i,2] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = avmr_coverage,
+                           effect = hsql_avm,
+                           result = c[i,2])
+
+
+
+    avmd_coverage <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+    c[i,3] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = avmd_coverage,
+                           effect = hsql_avmd,
+                           result = c[i,3])
+
+
+    rand_coverage <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+    c[i,4] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = rand_coverage,
+                           effect = hsql_rand,
+                           result = c[i,4])
+
+
+    # for latex purposes
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  # Combain data
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
+
+#' FUNCTION: table_generator_coverage_concentro
+#'
+#' Generates a latex table or a data frame for coverage table with effect size and U test.
+#' Only for Concentro AVM and Random
+#' @param d Data frame of analysis
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of coverages compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_coverage_concentro <- function(d, rtrn = "tex", m = "median") {
+  # Arrange dataframe by case study
+  d <- d %>% dplyr::arrange(casestudy)
+  d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
+  d <- d %>% dplyr::filter(casestudy != "iTrust")
+  #browser()
+  # Store the dataframe into another var
+  d1 <- d
+  # generate a DF for mean or median
+  if (m == "mean") {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(coverage = format(round((mean(coverage)), 1), nsmall = 1))
+  } else {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(coverage = format(round((median(coverage)), 1), nsmall = 1))
+  }
+  #browser()
+  # filp the data frame
+  d <- reshape2::dcast(d, casestudy ~ dbms + datagenerator, value.var=c("coverage"))
+  # get header
+  a1 <- d[1]
+  # Split by DBMS
+  d2 <- d[2:7]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:2]
+  #c <- c[c(3,4,1,2,5)]
+  a <- d[3:4]
+  #a <- a[c(3,4,1,2,5)]
+  b <- d[5:6]
+  #b <- b[c(3,4,1,2,5)]
+  # change the schemas from fectors to char
+  a1$casestudy <- as.character(a1$casestudy)
+  # get nunber of rows and itrate through them
+  numberOfRows <- nrow(d)
+  for (i in 1:numberOfRows) {
+    schema <- a1[i,]
+    # get each generators
+    dr <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+    # Effect size for PSQL
+    postgres_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+                                                  (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
+
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "Postgres"))$coverage
+    dravm_coverage <- (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage
+
+    a[i,2] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = dravm_coverage,
+                           effect = postgres_dravm,
+                           result = a[i,2])
+
+    # get SQLite effect size
+    sqlite_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+                                                (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
+
+    # get coverage
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "SQLite"))$coverage
+    dravm_coverage <- (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage
+
+    b[i,2] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = dravm_coverage,
+                           effect = sqlite_dravm,
+                           result = b[i,2])
+
+    # calculate effect size for coverage for HSQL
+    hsql_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+                                              (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
+
+    # U-test DRAVM vs DR
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+    dravm_coverage <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+
+    c[i,2] = comparing_sig(sample1 = dr_coverage,
+                           sample2 = dravm_coverage,
+                           effect = hsql_dravm,
+                           result = c[i,2])
+
+
+    # for latex purposes
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  # Combain data
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
+
+
 #' FUNCTION: table_generator_timing
 #'
 #' Generates a latex table or data frame for test generation timing table with effect size and U test.
@@ -410,6 +736,353 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
                                   sample2 = rand_time,
                                   effect = hsql_rand,
                                   result = c[i,5])
+
+    # for latex purposes
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  # Combain data
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  #return(d)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
+
+#' FUNCTION: table_generator_timing_others
+#'
+#' Generates a latex table or data frame for test generation timing table with effect size and U test.
+#' @param d Data frame of analysis
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of test generation timing compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
+  # Arrange dataframe by case study
+  d <- d %>% dplyr::arrange(casestudy)
+  d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
+
+  # copy values for Sig without transforming
+  d1 <- d
+  # Transform data with rounding down
+  # d3 <- d
+  # d1 <- ragtag::transform_execution_times_for_threshold(d, 1000)
+  # generate a DF for mean or median
+  if (m == "mean") {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>% dplyr::group_by(dbms, casestudy, datagenerator) %>% dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
+  } else {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>% dplyr::group_by(dbms, casestudy, datagenerator) %>% dplyr::summarise(testgenerationtime = format(round((median(testgenerationtime) / 1000), 2), nsmall = 2))
+  }
+  # filp the data frame
+  d <- reshape2::dcast(d, casestudy ~ dbms + datagenerator, value.var=c("testgenerationtime"))
+  # get header
+  a1 <- d[1]
+  # Split by DBMS
+  d2 <- d[2:13]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:4]
+  c <- c[c(3,1,2,4)]
+  a <- d[5:8]
+  a <- a[c(3,1,2,4)]
+  b <- d[9:12]
+  b <- b[c(3,1,2,4)]
+  # get nunber of rows and itrate through them
+  numberOfRows <- nrow(d)
+  # change the schemas from fectors to char
+  a1$casestudy <- as.character(a1$casestudy)
+  for (i in 1:numberOfRows) {
+    schema <- a1[i,]
+    # get generators for non-transformed
+    dr <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    avm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "avs")
+    avmd <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "avsDefaults")
+    rand <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "random")
+    dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+    # get each generators for transformed data
+    # drp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    # avmp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "avs")
+    # avmdp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "avsDefaults")
+    # randp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "random")
+    # dravmp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+
+    # Effect size for PSQL
+    postgres_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+                                                (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
+    postgres_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+                                                 (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
+    postgres_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+                                                 (rand %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
+
+
+
+    dr_time <- (dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+
+    avmr_time <- (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+
+    a[i,2] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = avmr_time,
+                                  effect = postgres_avm,
+                                  result = a[i,2])
+
+
+    # AVM-D
+    avmd_time <- (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+
+    a[i,3] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = avmd_time,
+                                  effect = postgres_avmd,
+                                  result = a[i,3])
+
+
+    # RANDOM
+    rand_time <- (rand %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+
+    a[i,4] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = rand_time,
+                                  effect = postgres_rand,
+                                  result = a[i,4])
+
+    # Effect size for SQLite
+    sqlite_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+                                              (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
+    sqlite_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+                                               (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
+    sqlite_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+                                               (rand %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
+
+    # DR vs AVM-R U-test
+    dr_time <- (dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+
+    # DR vs AVM-R U-test
+    avmr_time <- (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+
+    b[i,2] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = avmr_time,
+                                  effect = sqlite_avm,
+                                  result = b[i,2])
+
+    # AVM-D u-test
+    avmd_time <- (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+
+    b[i,3] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = avmd_time,
+                                  effect = sqlite_avmd,
+                                  result = b[i,3])
+
+    # Random U-Test
+    rand_time <- (rand %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+
+    b[i,4] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = rand_time,
+                                  effect = sqlite_rand,
+                                  result = b[i,4])
+
+    # Effect size for HSQL
+    hsql_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+                                            (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
+    hsql_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+                                             (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
+    hsql_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+                                             (rand %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
+
+    # U-Test avm-r vs dr
+    dr_time <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+
+    # U-Test avm-r vs dr
+    avmr_time <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+
+    c[i,2] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = avmr_time,
+                                  effect = hsql_avm,
+                                  result = c[i,2])
+
+    # U-Test avm-d
+    avmd_time <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+
+    c[i,3] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = avmd_time,
+                                  effect = hsql_avmd,
+                                  result = c[i,3])
+
+
+
+    # Rnadom u-test
+    rand_time <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+
+    c[i,4] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = rand_time,
+                                  effect = hsql_rand,
+                                  result = c[i,4])
+
+    # for latex purposes
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  # Combain data
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  #return(d)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
+
+#' FUNCTION: table_generator_timing_concentro
+#'
+#' Generates a latex table or data frame for test generation timing table with effect size and U test.
+#' Only for Concentro AVM and Random
+#' @param d Data frame of analysis
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of test generation timing compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_timing_concentro <- function(d, rtrn = "tex", m = "median") {
+  # Arrange dataframe by case study
+  d <- d %>% dplyr::arrange(casestudy)
+  d <- d %>% dplyr::filter(casestudy != "iTrust")
+  d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
+  # Transform data with rounding down
+  # d3 <- d
+  # copy values for Sig without transforming
+  d1 <- d
+  # d1 <- ragtag::transform_execution_times_for_threshold(d, 1000)
+  # generate a DF for mean or median
+  if (m == "mean") {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
+  } else {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(testgenerationtime = format(round((median(testgenerationtime) / 1000), 2), nsmall = 2))
+  }
+  # filp the data frame
+  d <- reshape2::dcast(d, casestudy ~ dbms + datagenerator, value.var=c("testgenerationtime"))
+  # get header
+  a1 <- d[1]
+  # Split by DBMS
+  d2 <- d[2:7]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:2]
+  # c <- c[c(3,4,1,2,5)]
+  a <- d[3:4]
+  #a <- a[c(3,4,1,2,5)]
+  b <- d[5:6]
+  #b <- b[c(3,4,1,2,5)]
+  # get nunber of rows and itrate through them
+  numberOfRows <- nrow(d)
+  # change the schemas from fectors to char
+  a1$casestudy <- as.character(a1$casestudy)
+  for (i in 1:numberOfRows) {
+    schema <- a1[i,]
+    # get generators for non-transformed
+    dr <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+    # get each generators for transformed data
+    #drp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    #dravmp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+    # Effect size for PSQL
+    postgres_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+                                                  (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
+
+    dr_time <- (dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+    avmr_time <- (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+
+    a[i,2] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = avmr_time,
+                                  effect = postgres_dravm,
+                                  result = a[i,2])
+
+
+    # Effect size for SQLite
+    sqlite_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+                                                (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
+
+    # DR vs AVM-R U-test
+    dr_time <- (dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+    dravmp_time <- (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+
+    b[i,2] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = dravmp_time,
+                                  effect = sqlite_dravm,
+                                  result = b[i,2])
+
+    # Effect size for HSQL
+    hsql_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+                                              (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
+
+    # U-Test avm-r vs dr
+    dr_time <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+    dravm_time <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+
+    c[i,2] = comparing_sig_timing(sample1 = dr_time,
+                                  sample2 = dravm_time,
+                                  effect = hsql_dravm,
+                                  result = c[i,2])
+
 
     # for latex purposes
     if (a1[i,] == "NistXTS749") {
@@ -738,6 +1411,315 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
                            sample2 = rand_mutation,
                            effect = hsql_rand,
                            result = c[i,5])
+
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
+
+
+#' FUNCTION: table_generator_mutation_score_others
+#'
+#' Generates a latex table or data frame for mutation score per schema table with effect size and U test.
+#' @param d Data frame of mutants
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of mutation score per schema compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median") {
+  # ordering mutants per run
+  d <- d %>% dplyr::filter(schema != "iTrust", datagenerator != "dravm")
+  d <- ordering_mutants_per_schema_others(d)
+  # copying data frame so it can be compared for A12 and U-test
+  d1 <- d
+  if (m == "mean") {
+    d <- d %>% dplyr::group_by(schema, datagenerator, dbms)  %>% dplyr::summarise(mutationScore = format(round(mean(mutationScore), 1), nsmall = 1))
+  } else {
+    d <- d %>% dplyr::group_by(schema, datagenerator, dbms)  %>% dplyr::summarise(mutationScore = format(round(median(mutationScore), 1), nsmall = 1))
+  }
+  # Reshaping data frame
+  d <- reshape2::dcast(d, schema ~ dbms + datagenerator, value.var=c("mutationScore"))
+  a1 <- d[1]
+  # Splitting data frame per DBMS
+  d2 <- d[2:13]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:4]
+  c <- c[c(3,1,2,4)]
+  a <- d[5:8]
+  a <- a[c(3,1,2,4)]
+  b <- d[9:12]
+  b <- b[c(3,1,2,4)]
+  # Schemas changed to
+  a1$schema <- as.character(a1$schema)
+  numberOfRows <- nrow(d)
+  for (i in 1:numberOfRows) {
+    schema1 <- a1[i,]
+    dr <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "directedRandom")
+    avm <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "avs")
+    avmd <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "avsDefaults")
+    rand <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "random")
+
+
+    # PSQL A12
+    postgres_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+                                                (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
+    postgres_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+                                                 (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
+    postgres_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+                                                 (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
+
+    # DR vs dravm
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+
+    # DR vs AVM-r
+    avmr_mutation <- (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+
+    a[i,2] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = avmr_mutation,
+                           effect = postgres_avm,
+                           result = a[i,2])
+
+    # AVM-D vs DR
+    avmd_mutation <- (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+
+    a[i,3] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = avmd_mutation,
+                           effect = postgres_avmd,
+                           result = a[i,3])
+
+
+    # Random vs DR
+    rand_mutation <- (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+
+    a[i,4] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = rand_mutation,
+                           effect = postgres_rand,
+                           result = a[i,4])
+
+    # A12 SQLite
+    sqlite_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+                                              (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
+    sqlite_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+                                               (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
+    sqlite_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+                                               (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
+
+    # Dr vs DRAVM
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+
+    # Dr vs AVM-R
+    avmr_mutation <- (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+
+    b[i,2] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = avmr_mutation,
+                           effect = sqlite_avm,
+                           result = b[i,2])
+
+    # AVMD vs DR
+    avmd_mutation <- (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+
+    b[i,2] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = avmd_mutation,
+                           effect = sqlite_avmd,
+                           result = b[i,2])
+
+    # Random vs DR
+    rand_mutation <- (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+
+    b[i,4] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = rand_mutation,
+                           effect = sqlite_rand,
+                           result = b[i,4])
+
+    # Effect size for HSQL
+    hsql_avm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+                                            (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
+    hsql_avmd <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+                                             (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
+    hsql_rand <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+                                             (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
+
+    # DR vs AVMR
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+    # DR vs AVMR
+    avmr_mutation <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+
+    c[i,2] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = avmr_mutation,
+                           effect = hsql_avm,
+                           result = c[i,2])
+
+    # AVMD vs DR
+    avmd_mutation <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+
+    c[i,3] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = avmd_mutation,
+                           effect = hsql_avmd,
+                           result = c[i,3])
+
+    # Random vs DR
+    rand_mutation <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+
+    c[i,4] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = rand_mutation,
+                           effect = hsql_rand,
+                           result = c[i,4])
+
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
+
+#' FUNCTION: table_generator_mutation_score_concentro
+#'
+#' Generates a latex table or data frame for mutation score per schema table with effect size and U test.
+#' Only for Concentro AVM and Random
+#' @param d Data frame of mutants
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of mutation score per schema compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_mutation_score_concentro <- function(d, rtrn = "tex", m = "median") {
+  # ordering mutants per run
+  d <- d %>% dplyr::filter(schema != "iTrust")
+  d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
+  d <- ordering_mutants_per_schema_concentro(d)
+  # copying data frame so it can be compared for A12 and U-test
+  d1 <- d
+  if (m == "mean") {
+    d <- d %>% dplyr::group_by(schema, datagenerator, dbms)  %>%
+      dplyr::summarise(mutationScore = format(round(mean(mutationScore), 1), nsmall = 1))
+  } else {
+    d <- d %>% dplyr::group_by(schema, datagenerator, dbms)  %>%
+      dplyr::summarise(mutationScore = format(round(median(mutationScore), 1), nsmall = 1))
+  }
+  # Reshaping data frame
+  d <- reshape2::dcast(d, schema ~ dbms + datagenerator, value.var=c("mutationScore"))
+  a1 <- d[1]
+  # Splitting data frame per DBMS
+  d2 <- d[2:7]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:2]
+  #c <- c[c(3,4,1,2,5)]
+  a <- d[3:4]
+  #a <- a[c(3,4,1,2,5)]
+  b <- d[5:6]
+  #b <- b[c(3,4,1,2,5)]
+  # Schemas changed to
+  a1$schema <- as.character(a1$schema)
+  numberOfRows <- nrow(d)
+  for (i in 1:numberOfRows) {
+    schema1 <- a1[i,]
+    dr <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "directedRandom")
+    dravm <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "dravm")
+
+
+    # PSQL A12
+    postgres_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+                                                  (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
+
+    # DR vs dravm
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+    dravm_mutation <- (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+
+    a[i,2] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = dravm_mutation,
+                           effect = postgres_dravm,
+                           result = a[i,2])
+
+
+    # A12 SQLite
+    sqlite_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+                                                (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
+
+    # Dr vs DRAVM
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+    dravm_mutation <- (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+
+    b[i,2] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = dravm_mutation,
+                           effect = sqlite_dravm,
+                           result = b[i,2])
+
+
+    # Effect size for HSQL
+    hsql_dravm <- ragtag::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+                                              (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
+
+    # DR vs AVMR
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+    dravm_mutation <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+
+    c[i,2] = comparing_sig(sample1 = dr_mutation,
+                           sample2 = dravm_mutation,
+                           effect = hsql_dravm,
+                           result = c[i,2])
 
     if (a1[i,] == "NistXTS749") {
       a1[i,] <- "NistXTSNine"
@@ -1187,6 +2169,195 @@ ordering_mutants_per_schema <- function(d) {
     postgres <- rbind(postgres_dr, postgres_avm, postgres_avmd, postgres_rand,postgres_dravm)
     sqlite <- rbind(sqlite_dr, sqlite_avm, sqlite_avmd, sqlite_rand,sqlite_dravm)
     hsql <- rbind(hsql_dr, hsql_avm, hsql_avmd, hsql_rand,hsql_dravm)
+
+    dt <- rbind(dt, postgres, sqlite, hsql)
+  }
+  return(dt)
+}
+
+#' FUNCTION: ordering_mutants_per_schema_others
+#'
+#' It generates an ordered data frame of mutants (normal type) grouped by each run per schema and its mutation score.
+#' @param d Data frame of mutants
+#' @return A data frame of ordred mutants and grouped by runs and mutation score per run per schema
+#' @importFrom magrittr %>%
+#' @export
+ordering_mutants_per_schema_others <- function(d) {
+
+  # Only selecting normal mutants types
+  d1 <- d %>% dplyr::filter(type == "NORMAL")
+  dt <- NULL
+
+  # Get each case study
+  casestudy <- as.vector(dplyr::distinct(d1, schema))[[1]]
+  # Get each DBMS
+  dbs <- as.vector(dplyr::distinct(d1, dbms))[[1]]
+  for (case in casestudy) {
+    schema1 <- case
+    for (db in dbs) {
+      # Filter data
+      filtered_data <- d1 %>% dplyr::filter(schema == schema1, dbms == db) %>% dplyr::group_by(identifier, dbms)
+      # Select first schema to be grouped
+      first_schema <- filtered_data[1,3]
+      test <- NULL
+
+      # Get each run for DR
+      ids <- filtered_data %>% dplyr::filter(schema== first_schema[[1,1]], datagenerator == "directedRandom") %>% dplyr::select(identifier,dbms,schema) %>% unique
+      ids$number=1:nrow(ids)
+      filtered_data %>% left_join(ids, by = c("identifier", "dbms", "schema")) %>% dplyr::mutate(number=as.numeric(ifelse(is.na(number),1,number))) %>% ungroup %>% dplyr::mutate(number = cummax(number)) -> test
+      dr_minsitrust <- test %>% dplyr::filter(datagenerator == "directedRandom") %>% dplyr::group_by(identifier, dbms, datagenerator, number, schema) %>% dplyr::summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false")))
+      dr <- dr_minsitrust
+      dr <- dr %>% dplyr::group_by(number, datagenerator, dbms, schema) %>% dplyr::summarise(killed_mutants = sum(killed_mutants), total_mutants = sum(total_mutants)) %>% dplyr::mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
+
+      # Get each run for AVM-R
+      ids <- filtered_data %>% dplyr::filter(schema== first_schema[[1,1]], datagenerator == "avs") %>% dplyr::select(identifier,dbms,schema) %>% unique
+      ids$number=1:nrow(ids)
+      filtered_data %>% left_join(ids, by = c("identifier", "dbms", "schema"))  %>% dplyr::mutate(number=as.numeric(ifelse(is.na(number),1,number))) %>% ungroup %>% dplyr::mutate(number = cummax(number)) -> test
+      avs_minsitrust <- test %>% dplyr::filter(datagenerator == "avs") %>% dplyr::group_by(identifier, dbms, datagenerator, number, schema) %>% dplyr::summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false")))
+      avm <- avs_minsitrust
+      avm <- avm %>% dplyr::group_by(number, datagenerator, dbms, schema) %>% dplyr::summarise(killed_mutants = sum(killed_mutants), total_mutants = sum(total_mutants)) %>% dplyr::mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
+
+      # Get each run for AVM-D
+      ids <- filtered_data %>% dplyr::filter(schema== first_schema[[1,1]], datagenerator == "avsDefaults") %>% dplyr::select(identifier,dbms,schema) %>% unique
+      ids$number=1:nrow(ids)
+      filtered_data %>% left_join(ids, by = c("identifier", "dbms", "schema"))  %>% dplyr::mutate(number=as.numeric(ifelse(is.na(number),1,number))) %>% ungroup %>% dplyr::mutate(number = cummax(number)) -> test
+      avsd_minsitrust <- test %>% dplyr::filter(datagenerator == "avsDefaults") %>% dplyr::group_by(identifier, dbms, datagenerator, number, schema) %>% dplyr::summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false")))
+      avmd <- avsd_minsitrust
+      avmd <- avmd %>% dplyr::group_by(number, datagenerator, dbms, schema) %>% dplyr::summarise(killed_mutants = sum(killed_mutants), total_mutants = sum(total_mutants)) %>% dplyr::mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
+
+      # Get each run for Random
+      ids <- filtered_data %>% dplyr::filter(schema== first_schema[[1,1]], datagenerator == "random") %>% dplyr::select(identifier,dbms,schema) %>% unique
+      ids$number=1:nrow(ids)
+      filtered_data %>% left_join(ids, by = c("identifier", "dbms", "schema"))  %>% dplyr::mutate(number=as.numeric(ifelse(is.na(number),1,number))) %>% ungroup %>% dplyr::mutate(number = cummax(number)) -> test
+      ran_minsitrust <- test %>% dplyr::filter(datagenerator == "random") %>% dplyr::group_by(identifier, dbms, datagenerator, number, schema) %>% dplyr::summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false")))
+      rand <- ran_minsitrust
+      rand <- rand %>% dplyr::group_by(number, datagenerator, dbms, schema) %>% dplyr::summarise(killed_mutants = sum(killed_mutants), total_mutants = sum(total_mutants)) %>% dplyr::mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
+
+      # save each run per DBMS
+      if (db == "Postgres") {
+        postgres_dr <- dr
+        postgres_avm <- avm
+        postgres_avmd <- avmd
+        postgres_rand <- rand
+      } else if (db == "SQLite") {
+        sqlite_dr <- dr
+        sqlite_avm <- avm
+        sqlite_avmd <- avmd
+        sqlite_rand <- rand
+      } else if (db == "HyperSQL") {
+        hsql_dr <- dr
+        hsql_avm <- avm
+        hsql_avmd <- avmd
+        hsql_rand <- rand
+      }
+
+    }
+
+    # Arrange by Runs (numbers)
+    postgres_dr <- dplyr::arrange(postgres_dr, number)
+    postgres_avm <- dplyr::arrange(postgres_avm, number)
+    postgres_avmd <- dplyr::arrange(postgres_avmd, number)
+    postgres_rand <- dplyr::arrange(postgres_rand, number)
+
+    sqlite_dr <- dplyr::arrange(sqlite_dr, number)
+    sqlite_avm <- dplyr::arrange(sqlite_avm, number)
+    sqlite_avmd <- dplyr::arrange(sqlite_avmd, number)
+    sqlite_rand <- dplyr::arrange(sqlite_rand, number)
+
+    hsql_dr <- dplyr::arrange(hsql_dr, number)
+    hsql_avm <- dplyr::arrange(hsql_avm, number)
+    hsql_avmd <- dplyr::arrange(hsql_avmd, number)
+    hsql_rand <- dplyr::arrange(hsql_rand, number)
+
+
+    # bind them together
+    postgres <- rbind(postgres_dr, postgres_avm, postgres_avmd, postgres_rand)
+    sqlite <- rbind(sqlite_dr, sqlite_avm, sqlite_avmd, sqlite_rand)
+    hsql <- rbind(hsql_dr, hsql_avm, hsql_avmd, hsql_rand)
+
+    dt <- rbind(dt, postgres, sqlite, hsql)
+  }
+  return(dt)
+}
+
+#' FUNCTION: ordering_mutants_per_schema_concentro
+#'
+#' It generates an ordered data frame of mutants (normal type) grouped by each run per schema and its mutation score.
+#' Only for Concentro AVM and Random
+#' @param d Data frame of mutants
+#' @return A data frame of ordred mutants and grouped by runs and mutation score per run per schema
+#' @importFrom magrittr %>%
+#' @export
+ordering_mutants_per_schema_concentro <- function(d) {
+
+  # Only selecting normal mutants types
+  d1 <- d %>% dplyr::filter(type == "NORMAL")
+  dt <- NULL
+
+  # Get each case study
+  casestudy <- as.vector(dplyr::distinct(d1, schema))[[1]]
+  # Get each DBMS
+  dbs <- as.vector(dplyr::distinct(d1, dbms))[[1]]
+  for (case in casestudy) {
+    schema1 <- case
+    for (db in dbs) {
+      # Filter data
+      filtered_data <- d1 %>% dplyr::filter(schema == schema1, dbms == db) %>% dplyr::group_by(identifier, dbms)
+      # Select first schema to be grouped
+      first_schema <- filtered_data[1,3]
+      test <- NULL
+
+      # Get each run for DRavm
+      ids <- filtered_data %>% dplyr::filter(schema== first_schema[[1,1]], datagenerator == "dravm") %>% dplyr::select(identifier,dbms,schema) %>% unique
+      ids$number=1:nrow(ids)
+      filtered_data %>% left_join(ids, by = c("identifier", "dbms", "schema")) %>% dplyr::mutate(number=as.numeric(ifelse(is.na(number),1,number))) %>% ungroup %>% dplyr::mutate(number = cummax(number)) -> test
+      dravm_minsitrust <- test %>% dplyr::filter(datagenerator == "dravm") %>% dplyr::group_by(identifier, dbms, datagenerator, number, schema) %>% dplyr::summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false")))
+      dravm <- dravm_minsitrust
+      dravm <- dravm %>% dplyr::group_by(number, datagenerator, dbms, schema) %>% dplyr::summarise(killed_mutants = sum(killed_mutants), total_mutants = sum(total_mutants)) %>% dplyr::mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
+
+
+      # Get each run for DR
+      ids <- filtered_data %>% dplyr::filter(schema== first_schema[[1,1]], datagenerator == "directedRandom") %>% dplyr::select(identifier,dbms,schema) %>% unique
+      ids$number=1:nrow(ids)
+      filtered_data %>% left_join(ids, by = c("identifier", "dbms", "schema")) %>% dplyr::mutate(number=as.numeric(ifelse(is.na(number),1,number))) %>% ungroup %>% dplyr::mutate(number = cummax(number)) -> test
+      dr_minsitrust <- test %>% dplyr::filter(datagenerator == "directedRandom") %>% dplyr::group_by(identifier, dbms, datagenerator, number, schema) %>% dplyr::summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false")))
+      dr <- dr_minsitrust
+      dr <- dr %>% dplyr::group_by(number, datagenerator, dbms, schema) %>% dplyr::summarise(killed_mutants = sum(killed_mutants), total_mutants = sum(total_mutants)) %>% dplyr::mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
+
+
+
+      # save each run per DBMS
+      if (db == "Postgres") {
+        postgres_dr <- dr
+        postgres_dravm <- dravm
+
+      } else if (db == "SQLite") {
+        sqlite_dr <- dr
+        sqlite_dravm <- dravm
+
+      } else if (db == "HyperSQL") {
+        hsql_dr <- dr
+        hsql_dravm <- dravm
+
+      }
+
+    }
+
+    # Arrange by Runs (numbers)
+    postgres_dr <- dplyr::arrange(postgres_dr, number)
+    postgres_dravm <- dplyr::arrange(postgres_dravm, number)
+
+    sqlite_dr <- dplyr::arrange(sqlite_dr, number)
+    sqlite_dravm <- dplyr::arrange(sqlite_dravm, number)
+
+    hsql_dr <- dplyr::arrange(hsql_dr, number)
+    hsql_dravm <- dplyr::arrange(hsql_dravm, number)
+
+
+    # bind them together
+    postgres <- rbind(postgres_dr,postgres_dravm)
+    sqlite <- rbind(sqlite_dr,sqlite_dravm)
+    hsql <- rbind(hsql_dr,hsql_dravm)
 
     dt <- rbind(dt, postgres, sqlite, hsql)
   }

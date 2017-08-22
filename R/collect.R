@@ -54,7 +54,7 @@ read_analysis <- function() {
 
   HyperSQL.dravm.minusitrust <- system.file("extdata", "30-HyperSQL-concentroAVS-minusitrust-mutationanalysis.dat",
                                            package="ragtag")
-  SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-dravm-minusitrust-mutationanalysis.dat",
+  SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-concentroAVS-minusitrust-mutationanalysis.dat",
                                          package="ragtag")
   Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-dravm-minusitrust-mutationanalysis.dat",
                                            package="ragtag")
@@ -220,7 +220,7 @@ read_mutants <- function() {
 
   HyperSQL.dravm.minusitrust <- system.file("extdata", "30-HyperSQL-concentroAVS-minusitrust-mutanttiming.dat",
                                             package="ragtag")
-  SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-dravm-minusitrust-mutanttiming.dat",
+  SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-concentroAVS-minusitrust-mutanttiming.dat",
                                           package="ragtag")
   Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-dravm-minusitrust-mutanttiming.dat",
                                             package="ragtag")
