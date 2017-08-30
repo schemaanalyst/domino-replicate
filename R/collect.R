@@ -47,8 +47,8 @@ read_analysis <- function() {
 
   #HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-dravm-itrust-mutationanalysis.dat",
   #                                    package="ragtag")
-  SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-dravm-itrust-mutationanalysis.dat",
-                                    package="ragtag")
+  #SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-dravm-itrust-mutationanalysis.dat",
+  #                                  package="ragtag")
   #Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-dravm-itrust-mutationanalysis.dat",
   #                                    package="ragtag")
 
@@ -56,7 +56,7 @@ read_analysis <- function() {
                                            package="ragtag")
   SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-concentroAVS-minusitrust-mutationanalysis.dat",
                                          package="ragtag")
-  Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-dravm-minusitrust-mutationanalysis.dat",
+  Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-concentroAVS-minusitrust-mutationanalysis.dat",
                                            package="ragtag")
 
   #f <- system.file("extdata", "analysis.csv", package="ragtag")
@@ -86,12 +86,12 @@ read_analysis <- function() {
   d19 <- readr::read_csv(Postgres.dravm.minusitrust)
 
   #d14 <- readr::read_csv(HyperSQL.dravm.itrust)
-  d15 <- readr::read_csv(SQLite.dravm.itrust)
+  #d15 <- readr::read_csv(SQLite.dravm.itrust)
   #d16 <- readr::read_csv(Postgres.dravm.itrust)
 
   #allFrames <- rbind(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19)
 
-  allFrames <- rbind(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d15,d17,d18,d19)
+  allFrames <- rbind(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d17,d18,d19)
 
   allFrames <- allFrames %>% dplyr::mutate(casestudy = as.character(gsub("parsedcasestudy.","",casestudy)))
   allFrames$casestudy <- gsub("IsoFlav_R2Repaired", "IsoFlav_R2", allFrames$casestudy)
@@ -213,8 +213,8 @@ read_mutants <- function() {
 
   #HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-dravm-itrust-mutanttiming.dat",
   #                                    package="ragtag")
-  SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-dravm-itrust-mutanttiming.dat",
-                                     package="ragtag")
+  #SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-dravm-itrust-mutanttiming.dat",
+  #                                   package="ragtag")
   #Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-dravm-itrust-mutanttiming.dat",
   #                                    package="ragtag")
 
@@ -222,7 +222,7 @@ read_mutants <- function() {
                                             package="ragtag")
   SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-concentroAVS-minusitrust-mutanttiming.dat",
                                           package="ragtag")
-  Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-dravm-minusitrust-mutanttiming.dat",
+  Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-concentroAVS-minusitrust-mutanttiming.dat",
                                             package="ragtag")
 
   d17 <- readr::read_csv(HyperSQL.dravm.minusitrust)
@@ -230,12 +230,12 @@ read_mutants <- function() {
   d19 <- readr::read_csv(Postgres.dravm.minusitrust)
 
   #d14 <- readr::read_csv(HyperSQL.dravm.itrust)
-  d15 <- readr::read_csv(SQLite.dravm.itrust)
+  #d15 <- readr::read_csv(SQLite.dravm.itrust)
   #d16 <- readr::read_csv(Postgres.dravm.itrust)
 
   # Adding generator name
   #d14[,namevector] <- "dravm"
-  d15[,namevector] <- "dravm"
+  #d15[,namevector] <- "dravm"
   #d16[,namevector] <- "dravm"
   d17[,namevector] <- "dravm"
   d18[,namevector] <- "dravm"
@@ -243,7 +243,7 @@ read_mutants <- function() {
 
   #allFrames <- rbind(d21,d22,d23,d24,d25,d26,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19)
 
-  allFrames <- rbind(d21,d22,d23,d24,d25,d26,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d17,d18,d19,d15)
+  allFrames <- rbind(d21,d22,d23,d24,d25,d26,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d17,d18,d19)
   allFrames$datagenerator <- gsub("concentroAVS", "dravm", allFrames$datagenerator)
 
 

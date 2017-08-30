@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualise.R
 \name{comparing_sig_timing}
 \alias{comparing_sig_timing}
-\title{FUNCTION: comparing_sig_timing}
+\title{FUNCTION: ragtag::comparing_sig_timing}
 \usage{
 comparing_sig_timing(sample1, sample2, effect, result)
 }
@@ -10,5 +10,5 @@ comparing_sig_timing(sample1, sample2, effect, result)
 latex of cell
 }
 \description{
-FUNCTION: comparing_sig_timing
+FUNCTION: ragtag::comparing_sig_timing
 }
