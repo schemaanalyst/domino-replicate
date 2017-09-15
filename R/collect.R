@@ -7,7 +7,6 @@
 #' @importFrom magrittr %>%
 #' @export
 read_analysis <- function() {
-
   # collect all AVM-D
   rnd.avmd <- system.file("extdata", "mutation-analysis.dat",
                                package="ragtag")
@@ -45,12 +44,12 @@ read_analysis <- function() {
 
   # collect all DrAVM
 
-  #HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-dravm-itrust-mutationanalysis.dat",
-  #                                    package="ragtag")
-  #SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-dravm-itrust-mutationanalysis.dat",
-  #                                  package="ragtag")
-  #Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-dravm-itrust-mutationanalysis.dat",
-  #                                    package="ragtag")
+  HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-concentroAVS-itrust-mutationanalysis.dat",
+                                      package="ragtag")
+  SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-concentroAVS-itrust-mutationanalysis.dat",
+                                    package="ragtag")
+  Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-concentroAVS-itrust-mutationanalysis.dat",
+                                      package="ragtag")
 
   HyperSQL.dravm.minusitrust <- system.file("extdata", "30-HyperSQL-concentroAVS-minusitrust-mutationanalysis.dat",
                                            package="ragtag")
@@ -85,20 +84,149 @@ read_analysis <- function() {
   d18 <- readr::read_csv(SQLite.dravm.minusitrust)
   d19 <- readr::read_csv(Postgres.dravm.minusitrust)
 
-  #d14 <- readr::read_csv(HyperSQL.dravm.itrust)
-  #d15 <- readr::read_csv(SQLite.dravm.itrust)
-  #d16 <- readr::read_csv(Postgres.dravm.itrust)
+  d14 <- readr::read_csv(HyperSQL.dravm.itrust)
+  d15 <- readr::read_csv(SQLite.dravm.itrust)
+  d16 <- readr::read_csv(Postgres.dravm.itrust)
 
-  #allFrames <- rbind(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19)
+  allFrames <- rbind(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19)
 
-  allFrames <- rbind(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d17,d18,d19)
+  #allFrames <- rbind(d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d17,d18,d19)
 
   allFrames <- allFrames %>% dplyr::mutate(casestudy = as.character(gsub("parsedcasestudy.","",casestudy)))
   allFrames$casestudy <- gsub("IsoFlav_R2Repaired", "IsoFlav_R2", allFrames$casestudy)
 
+  allFrames <- ragtag::read_failedtest_with_filtering(allFrames, type = "ana")
+
   allFrames$datagenerator <- gsub("concentroAVS", "dravm", allFrames$datagenerator)
+  allFrames$datagenerator <- gsub("concentroRandom", "directedRandom", allFrames$datagenerator)
 
   return(dplyr::tbl_df(allFrames))
+}
+
+
+#' FUNCTION: read_failedtest_with_filtering
+#'
+#' Read the data file that contains the "analysis" data. This is the data containing all test generation times, coverages,
+#' evaluations etc. It is refered in SchemaAnalyst github repo as 'newmutationanalysis.dat'. And it allow us to compare
+#' test generation timing and coverages results.
+#' @return A Data Frame of analysis
+#' @importFrom magrittr %>%
+#' @export
+read_failedtest_with_filtering <- function(dt, type = "ana") {
+  if (type == "ana") {
+    # Remove case studies that failed
+    casestudies_all <- c("BookTown", "Products")
+    generators_all <- c("directedRandom", "dravm", "avsDefaults", "avs",
+                        "concentroRandom", "concentroAVS")
+
+    # Get remove all case studies including both criteria up top
+    main <- NULL
+    i <- 1
+    for (g in generators_all) {
+      for (case in casestudies_all) {
+        if (i == 1) {
+          main <- dt %>% dplyr::filter(!(casestudy == case & datagenerator == g))
+        } else {
+          main <- main %>% dplyr::filter(!(casestudy == case & datagenerator == g))
+        }
+        i <- i + 1
+      }
+    }
+
+    #main <- dt %>%
+    #  dplyr::filter(!(casestudy %in% casestudies_all &
+    #                    datagenerator %in% generators_all))
+
+    casestudies_avs <- c("BrowserCookies", "Flights")
+
+    i <- 1
+    for (case in casestudies_avs) {
+      main <- main %>% dplyr::filter(!(casestudy == case & datagenerator == "avs"))
+    }
+
+    # Get failed test timing :)
+    data_path <- system.file("extdata", package="ragtag")
+    files <- list.files(data_path, pattern = "*nonFullAll-mutationanalysis*",
+                        full.names = TRUE)
+    table <- lapply(files, readr::read_csv) %>% bind_rows()
+
+    # AVS
+    files <- list.files(data_path, pattern = "*nonFullAVS-mutationanalysis*",
+                        full.names = TRUE)
+    table_avs <- lapply(files, readr::read_csv) %>% bind_rows()
+    table <- rbind(table, table_avs)
+    # Subtarct failedtestsgenerationtime from testgenerationtime
+    table$testgenerationtime <- (table$testgenerationtime - table$failedtestsgenerationtime)
+    table$failedtestsgenerationtime <- NULL
+    table <- table %>% dplyr::mutate(casestudy = as.character(gsub("parsedcasestudy.","",casestudy)))
+    table$casestudy <- gsub("IsoFlav_R2Repaired", "IsoFlav_R2", table$casestudy)
+
+    # Combain
+    rtn <- rbind(main, table)
+    # Retrun data
+    return(rtn)
+  } else {
+    # Remove case studies that failed
+    casestudies_all <- c("BookTown", "Products")
+    generators_all <- c("directedRandom", "dravm", "avsDefaults", "avs",
+                        "concentroRandom", "concentroAVS")
+    # Get remove all case studies including both criteria up top
+    main <- NULL
+    i <- 1
+    for (g in generators_all) {
+      for (case in casestudies_all) {
+        if (i == 1) {
+          main <- dt %>% dplyr::filter(!(schema == case & datagenerator == g))
+        } else {
+          main <- main %>% dplyr::filter(!(schema == case & datagenerator == g))
+        }
+        i <- i + 1
+      }
+    }
+
+    casestudies_avs <- c("BrowserCookies", "Flights")
+
+    i <- 1
+    for (case in casestudies_avs) {
+      main <- main %>% dplyr::filter(!(schema == case & datagenerator == "avs"))
+    }
+
+    data_path <- system.file("extdata", package="ragtag")
+
+    conR <- list.files(data_path,
+                       pattern = "*concentroRandom-nonFullAll-mutanttiming*",
+                       full.names = TRUE)
+    conA <- list.files(data_path,
+                       pattern = "*concentroAVS-nonFullAll-mutanttiming*",
+                       full.names = TRUE)
+    avs <- list.files(data_path,
+                      pattern = "*avs-nonFullAll-mutanttiming*",
+                      full.names = TRUE)
+    avsd <- list.files(data_path,
+                       pattern = "*avsDefaults-nonFullAll-mutanttiming*",
+                       full.names = TRUE)
+    nonFullAVS <- list.files(data_path,
+                             pattern = "*avs-nonFullAVS-mutanttiming*",
+                             full.names = TRUE)
+
+    namevector <- c("datagenerator")
+    conR_table <- lapply(conR, readr::read_csv) %>% bind_rows()
+    conR_table[,namevector] <- "concentroRandom"
+    conA_table <- lapply(conA, readr::read_csv) %>% bind_rows()
+    conA_table[,namevector] <- "concentroAVS"
+    avs_table <- lapply(avs, readr::read_csv) %>% bind_rows()
+    avs_table[,namevector] <- "avs"
+    avsd_table <- lapply(avsd, readr::read_csv) %>% bind_rows()
+    avsd_table[,namevector] <- "avsDefaults"
+    nonFullAVS_table <- lapply(nonFullAVS, readr::read_csv) %>% bind_rows()
+    nonFullAVS_table[,namevector] <- "avs"
+
+    # Combain
+    rtn <- rbind(main, conR_table, conA_table,
+                 avs_table, avsd_table, nonFullAVS_table)
+    # Retrun data
+    return(rtn)
+  }
 }
 
 #' FUNCTION: read_mutants
@@ -211,12 +339,12 @@ read_mutants <- function() {
 
   # collect all DrAVM
 
-  #HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-dravm-itrust-mutanttiming.dat",
-  #                                    package="ragtag")
-  #SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-dravm-itrust-mutanttiming.dat",
-  #                                   package="ragtag")
-  #Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-dravm-itrust-mutanttiming.dat",
-  #                                    package="ragtag")
+  HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-concentroAVS-itrust-mutanttiming.dat",
+                                      package="ragtag")
+  SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-concentroAVS-itrust-mutanttiming.dat",
+                                     package="ragtag")
+  Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-concentroAVS-itrust-mutanttiming.dat",
+                                      package="ragtag")
 
   HyperSQL.dravm.minusitrust <- system.file("extdata", "30-HyperSQL-concentroAVS-minusitrust-mutanttiming.dat",
                                             package="ragtag")
@@ -229,23 +357,28 @@ read_mutants <- function() {
   d18 <- readr::read_csv(SQLite.dravm.minusitrust)
   d19 <- readr::read_csv(Postgres.dravm.minusitrust)
 
-  #d14 <- readr::read_csv(HyperSQL.dravm.itrust)
-  #d15 <- readr::read_csv(SQLite.dravm.itrust)
-  #d16 <- readr::read_csv(Postgres.dravm.itrust)
+  d14 <- readr::read_csv(HyperSQL.dravm.itrust)
+  d15 <- readr::read_csv(SQLite.dravm.itrust)
+  d16 <- readr::read_csv(Postgres.dravm.itrust)
 
   # Adding generator name
-  #d14[,namevector] <- "dravm"
-  #d15[,namevector] <- "dravm"
-  #d16[,namevector] <- "dravm"
+  d14[,namevector] <- "dravm"
+  d15[,namevector] <- "dravm"
+  d16[,namevector] <- "dravm"
   d17[,namevector] <- "dravm"
   d18[,namevector] <- "dravm"
   d19[,namevector] <- "dravm"
 
-  #allFrames <- rbind(d21,d22,d23,d24,d25,d26,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19)
+  allFrames <- rbind(d21,d22,d23,d24,d25,d26,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d14,d15,d16,d17,d18,d19)
 
-  allFrames <- rbind(d21,d22,d23,d24,d25,d26,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d17,d18,d19)
+  #allFrames <- rbind(d21,d22,d23,d24,d25,d26,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,d13,d17,d18,d19)
   allFrames$datagenerator <- gsub("concentroAVS", "dravm", allFrames$datagenerator)
+  allFrames$datagenerator <- gsub("concentroRandom", "directedRandom", allFrames$datagenerator)
 
+  allFrames <- ragtag::read_failedtest_with_filtering(allFrames, type = "mut")
+
+  allFrames$datagenerator <- gsub("concentroAVS", "dravm", allFrames$datagenerator)
+  allFrames$datagenerator <- gsub("concentroRandom", "directedRandom", allFrames$datagenerator)
 
   return(dplyr::tbl_df(allFrames))
 

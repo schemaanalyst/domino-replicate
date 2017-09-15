@@ -42,13 +42,13 @@ get_check_schemas_mutants <- function(d) {
 #' @return A data frame of check constraints only schemas or table LaTeX
 #' @importFrom magrittr %>%
 #' @export
-concentro_table_combaining <- function(ana, mut, rtrn = "tex") {
+concentro_table_combaining <- function(ana, mut, rtrn = "tex", mm = "median") {
   newAna <- ragtag::get_check_schemas_analysis(ana)
   newMut <- ragtag::get_check_schemas_mutants(mut)
 
-  coverage_concentro <- ragtag::table_generator_coverage_concentro(newAna, m = "mean", rtrn = "data")
-  timing_concentro <- ragtag::table_generator_timing_concentro(newAna, m = "mean", rtrn = "data")
-  mutants_concentro <- ragtag::table_generator_mutation_score_concentro(newMut, m = "mean", rtrn = "data")
+  coverage_concentro <- ragtag::table_generator_coverage_concentro(newAna, m = mm, rtrn = "data")
+  timing_concentro <- ragtag::table_generator_timing_concentro(newAna, m = mm, rtrn = "data")
+  mutants_concentro <- ragtag::table_generator_mutation_score_concentro(newMut, m = mm, rtrn = "data")
 
   colnames(coverage_concentro) <- paste(colnames(coverage_concentro), "cov", sep = "_")
   colnames(timing_concentro) <- paste(colnames(timing_concentro), "time", sep = "_")
@@ -75,7 +75,7 @@ concentro_table_combaining <- function(ana, mut, rtrn = "tex") {
 table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust")
   # Store the dataframe into another var
   d1 <- d
   # generate a DF for mean or median
@@ -297,22 +297,23 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 table_generator_coverage_others <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
   # Store the dataframe into another var
   d1 <- d
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
       dplyr::group_by(dbms, casestudy, datagenerator) %>%
-      dplyr::summarise(coverage = format(round((mean(coverage)), 1), nsmall = 1))
+      dplyr::summarise(coverage = format(round((mean(coverage)), 0), nsmall = 0))
   } else {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
       dplyr::group_by(dbms, casestudy, datagenerator) %>%
-      dplyr::summarise(coverage = format(round((median(coverage)), 1), nsmall = 1))
+      dplyr::summarise(coverage = format(round((median(coverage)), 0), nsmall = 0))
   }
   #browser()
   # filp the data frame
   d <- reshape2::dcast(d, casestudy ~ dbms + datagenerator, value.var=c("coverage"))
+  #browser()
   # get header
   a1 <- d[1]
   # Split by DBMS
@@ -494,7 +495,7 @@ table_generator_coverage_concentro <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
-  d <- d %>% dplyr::filter(casestudy != "iTrust")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust")
   #browser()
   # Store the dataframe into another var
   d1 <- d
@@ -623,7 +624,7 @@ table_generator_coverage_concentro <- function(d, rtrn = "tex", m = "median") {
 table_generator_timing <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "random")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "random")
 
   # copy values for Sig without transforming
   d3 <- d
@@ -855,7 +856,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
 table_generator_timing_nonRand <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "random")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "random")
 
   # copy values for Sig without transforming
   d3 <- d
@@ -1054,7 +1055,7 @@ table_generator_timing_nonRand <- function(d, rtrn = "tex", m = "median") {
 table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
 
   # copy values for Sig without transforming
   d1 <- d
@@ -1263,7 +1264,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
 table_generator_timing_others_nonRand <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
 
   # copy values for Sig without transforming
   d1 <- d
@@ -1478,7 +1479,7 @@ table_generator_timing_others_nonRand <- function(d, rtrn = "tex", m = "median")
 table_generator_timing_concentro <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust")
   d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
   # Transform data with rounding down
   # d3 <- d
@@ -1607,7 +1608,7 @@ table_generator_timing_concentro <- function(d, rtrn = "tex", m = "median") {
 table_generator_timing_hsql <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
-  d <- d %>% dplyr::filter(casestudy != "iTrust")
+  #d <- d %>% dplyr::filter(casestudy != "iTrust")
 
   # copy values for Sig without transforming
   d3 <- d
@@ -1629,7 +1630,7 @@ table_generator_timing_hsql <- function(d, rtrn = "tex", m = "median") {
   d <- d2[ , order(names(d2))]
   # c <- d[1:5]
   # c <- c[c(3,4,1,2,5)]
-  browser()
+  #browser()
   c <- d[1:2]
   c <- c[c(2,1)]
   b <- d[3:4]
@@ -1728,7 +1729,7 @@ table_generator_timing_hsql <- function(d, rtrn = "tex", m = "median") {
 #' @export
 table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
-  d <- d %>% dplyr::filter(schema != "iTrust")
+  #d <- d %>% dplyr::filter(schema != "iTrust")
   d <- ordering_mutants_per_schema(d)
   # copying data frame so it can be compared for A12 and U-test
   d1 <- d
@@ -1939,7 +1940,7 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
 #' @export
 table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
-  d <- d %>% dplyr::filter(schema != "iTrust")
+  #d <- d %>% dplyr::filter(schema != "iTrust")
   d <- ordering_mutants_per_schema(d)
   d <- d %>% dplyr::filter(datagenerator != "random")
   # copying data frame so it can be compared for A12 and U-test
@@ -2118,7 +2119,7 @@ table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median")
 #' @export
 table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
-  d <- d %>% dplyr::filter(schema != "iTrust", datagenerator != "dravm")
+  #d <- d %>% dplyr::filter(schema != "iTrust", datagenerator != "dravm")
   d <- ordering_mutants_per_schema_others(d)
   # copying data frame so it can be compared for A12 and U-test
   d1 <- d
@@ -2303,7 +2304,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
 #' @export
 table_generator_mutation_score_others_nonRand <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
-  d <- d %>% dplyr::filter(schema != "iTrust", datagenerator != "dravm")
+  #d <- d %>% dplyr::filter(schema != "iTrust", datagenerator != "dravm")
   d <- ordering_mutants_per_schema_others(d)
   # copying data frame so it can be compared for A12 and U-test
   d1 <- d
@@ -2495,7 +2496,7 @@ table_generator_mutation_score_others_nonRand <- function(d, rtrn = "tex", m = "
 #' @export
 table_generator_mutation_score_concentro <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
-  d <- d %>% dplyr::filter(schema != "iTrust")
+  #d <- d %>% dplyr::filter(schema != "iTrust")
   d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
   d <- ordering_mutants_per_schema_concentro(d)
   # copying data frame so it can be compared for A12 and U-test
@@ -2913,7 +2914,7 @@ table_generator_mutant_operators <- function(d, rtrn = "tex", m = "median") {
 table_generator_mutant_operators_concentro <- function(d, rtrn = "tex", m = "median") {
   # Order mutants per run
   d <- ordering_mutants_per_operator_concentro(d)
-  browser()
+  #browser()
 
   # copying data before reshaping
   d1 <- d

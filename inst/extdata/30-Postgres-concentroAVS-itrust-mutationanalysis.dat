@@ -1,0 +1,15 @@
+dbms,casestudy,criterion,datagenerator,randomseed,testsuitefile,coverage,evaluations,tests,mutationpipeline,scorenumerator,scoredenominator,technique,transactions,testgenerationtime,mutantgenerationtime,originalresultstime,mutationanalysistime,timetaken
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,1,NA,100.0,3280,1458,AllOperatorsNoFKANormalisedWithClassifiers,1360,1437,mutantTiming,true,45768,1193008,54814,94922864,96216469
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,2,NA,100.0,3243,1458,AllOperatorsNoFKANormalisedWithClassifiers,1358,1437,mutantTiming,true,45677,1194111,54352,82711101,84005256
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,3,NA,100.0,3356,1458,AllOperatorsNoFKANormalisedWithClassifiers,1356,1437,mutantTiming,true,47038,1191915,52149,106447044,107738162
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,4,NA,100.0,3373,1458,AllOperatorsNoFKANormalisedWithClassifiers,1358,1437,mutantTiming,true,47225,1185795,53653,82589675,83876364
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,5,NA,100.0,3201,1458,AllOperatorsNoFKANormalisedWithClassifiers,1355,1437,mutantTiming,true,46730,1213256,52799,106571734,107884534
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,6,NA,100.0,3288,1458,AllOperatorsNoFKANormalisedWithClassifiers,1357,1437,mutantTiming,true,47139,1187295,45656,82648585,83928706
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,7,NA,100.0,3236,1458,AllOperatorsNoFKANormalisedWithClassifiers,1359,1437,mutantTiming,true,47234,1184866,52872,106723318,108008304
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,8,NA,100.0,3229,1458,AllOperatorsNoFKANormalisedWithClassifiers,1357,1437,mutantTiming,true,52047,1197945,53701,82579312,83883301
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,9,NA,100.0,3252,1458,AllOperatorsNoFKANormalisedWithClassifiers,1358,1437,mutantTiming,true,47828,1192756,56176,90204165,91500940
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,10,NA,100.0,3206,1458,AllOperatorsNoFKANormalisedWithClassifiers,1356,1437,mutantTiming,true,46736,1202465,54647,95355937,96659798
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,11,NA,100.0,3294,1458,AllOperatorsNoFKANormalisedWithClassifiers,1359,1437,mutantTiming,true,48558,1199482,51032,82369885,83668970
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,12,NA,100.0,3282,1458,AllOperatorsNoFKANormalisedWithClassifiers,1358,1437,mutantTiming,true,41318,1198718,49020,107529001,108818073
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,13,NA,100.0,3181,1458,AllOperatorsNoFKANormalisedWithClassifiers,1359,1437,mutantTiming,true,44167,1185608,47730,82278618,83556138
+Postgres,parsedcasestudy.iTrust,ClauseAICC+AUCC+ANCC,concentroAVS,14,NA,100.0,3280,1458,AllOperatorsNoFKANormalisedWithClassifiers,1358,1437,mutantTiming,true,44709,1190483,53647,107567437,108856288

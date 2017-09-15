@@ -4,7 +4,7 @@
 \alias{concentro_table_combaining}
 \title{FUNCTION: concentro_table_combaining}
 \usage{
-concentro_table_combaining(ana, mut, rtrn = "tex")
+concentro_table_combaining(ana, mut, rtrn = "tex", mm = "median")
 }
 \arguments{
 \item{ana}{Data frame of analysis}
