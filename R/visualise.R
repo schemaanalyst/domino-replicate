@@ -46,9 +46,13 @@ concentro_table_combaining <- function(ana, mut, rtrn = "tex", mm = "median") {
   newAna <- ragtag::get_check_schemas_analysis(ana)
   newMut <- ragtag::get_check_schemas_mutants(mut)
 
-  coverage_concentro <- ragtag::table_generator_coverage_concentro(newAna, m = mm, rtrn = "data")
-  timing_concentro <- ragtag::table_generator_timing_concentro(newAna, m = mm, rtrn = "data")
-  mutants_concentro <- ragtag::table_generator_mutation_score_concentro(newMut, m = mm, rtrn = "data")
+  #coverage_concentro <- ragtag::table_generator_coverage_concentro(newAna, m = mm, rtrn = "data")
+  #timing_concentro <- ragtag::table_generator_timing_concentro(newAna, m = mm, rtrn = "data")
+  #mutants_concentro <- ragtag::table_generator_mutation_score_concentro(newMut, m = mm, rtrn = "data")
+
+  coverage_concentro <- ragtag::table_generator_coverage_concentro_flipped(newAna, m = mm, rtrn = "data")
+  timing_concentro <- ragtag::table_generator_timing_concentro_flipped(newAna, m = mm, rtrn = "data")
+  mutants_concentro <- ragtag::table_generator_mutation_score_concentro_flipped(newMut, m = mm, rtrn = "data")
 
   colnames(coverage_concentro) <- paste(colnames(coverage_concentro), "cov", sep = "_")
   colnames(timing_concentro) <- paste(colnames(timing_concentro), "time", sep = "_")
@@ -570,6 +574,140 @@ table_generator_coverage_concentro <- function(d, rtrn = "tex", m = "median") {
                            sample2 = dravm_coverage,
                            effect = hsql_dravm,
                            result = c[i,2])
+
+
+    # for latex purposes
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  # Combain data
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
+
+
+#' FUNCTION: table_generator_coverage_concentro_flipped
+#'
+#' Generates a latex table or a data frame for coverage table with effect size and U test.
+#' Only for Concentro AVM and Random
+#' @param d Data frame of analysis
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of coverages compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_coverage_concentro_flipped <- function(d, rtrn = "tex", m = "median") {
+  # Arrange dataframe by case study
+  d <- d %>% dplyr::arrange(casestudy)
+  d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
+  #d <- d %>% dplyr::filter(casestudy != "iTrust")
+  #browser()
+  # Store the dataframe into another var
+  d1 <- d
+  # generate a DF for mean or median
+  if (m == "mean") {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(coverage = format(round((mean(coverage)), 1), nsmall = 1))
+  } else {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, coverage, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(coverage = format(round((median(coverage)), 1), nsmall = 1))
+  }
+  #browser()
+  # filp the data frame
+  d <- reshape2::dcast(d, casestudy ~ dbms + datagenerator, value.var=c("coverage"))
+  # get header
+  a1 <- d[1]
+  # Split by DBMS
+  d2 <- d[2:7]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:2]
+  c <- c[c(2,1)]
+  #c <- c[c(3,4,1,2,5)]
+  a <- d[3:4]
+  a <- a[c(2,1)]
+  #a <- a[c(3,4,1,2,5)]
+  b <- d[5:6]
+  b <- b[c(2,1)]
+  #b <- b[c(3,4,1,2,5)]
+  # change the schemas from fectors to char
+  a1$casestudy <- as.character(a1$casestudy)
+  # get nunber of rows and itrate through them
+  numberOfRows <- nrow(d)
+  for (i in 1:numberOfRows) {
+    schema <- a1[i,]
+    # get each generators
+    dr <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+    # Effect size for PSQL
+    postgres_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$coverage,
+                                                  (dr %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
+
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "Postgres"))$coverage
+    dravm_coverage <- (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage
+
+    a[i,2] = ragtag::comparing_sig(sample1 = dravm_coverage,
+                                   sample2 = dr_coverage,
+                                   effect = postgres_dravm,
+                                   result = a[i,2])
+
+    # get SQLite effect size
+    sqlite_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$coverage,
+                                                (dr %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
+
+    # get coverage
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "SQLite"))$coverage
+    dravm_coverage <- (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage
+
+    b[i,2] = ragtag::comparing_sig(sample1 = dravm_coverage,
+                                   sample2 = dr_coverage,
+                                   effect = sqlite_dravm,
+                                   result = b[i,2])
+
+    # calculate effect size for coverage for HSQL
+    hsql_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+                                              (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
+
+    # U-test DRAVM vs DR
+    dr_coverage <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+    dravm_coverage <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
+
+    c[i,2] = ragtag::comparing_sig(sample1 = dravm_coverage,
+                                   sample2 = dr_coverage,
+                                   effect = hsql_dravm,
+                                   result = c[i,2])
 
 
     # for latex purposes
@@ -1604,6 +1742,146 @@ table_generator_timing_concentro <- function(d, rtrn = "tex", m = "median") {
   }
 }
 
+#' FUNCTION: table_generator_timing_concentro_flipped
+#'
+#' Generates a latex table or data frame for test generation timing table with effect size and U test.
+#' Only for Concentro AVM and Random
+#' @param d Data frame of analysis
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of test generation timing compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_timing_concentro_flipped <- function(d, rtrn = "tex", m = "median") {
+  # Arrange dataframe by case study
+  d <- d %>% dplyr::arrange(casestudy)
+  #d <- d %>% dplyr::filter(casestudy != "iTrust")
+  d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
+  # Transform data with rounding down
+  # d3 <- d
+  # copy values for Sig without transforming
+  d1 <- d
+  # d1 <- ragtag::transform_execution_times_for_threshold(d, 1000)
+  # generate a DF for mean or median
+  if (m == "mean") {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
+  } else {
+    d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>%
+      dplyr::group_by(dbms, casestudy, datagenerator) %>%
+      dplyr::summarise(testgenerationtime = format(round((median(testgenerationtime) / 1000), 2), nsmall = 2))
+  }
+  # filp the data frame
+  d <- reshape2::dcast(d, casestudy ~ dbms + datagenerator, value.var=c("testgenerationtime"))
+  # get header
+  a1 <- d[1]
+  # Split by DBMS
+  d2 <- d[2:7]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:2]
+  c <- c[c(2,1)]
+  # c <- c[c(3,4,1,2,5)]
+  a <- d[3:4]
+  a <- a[c(2,1)]
+  #a <- a[c(3,4,1,2,5)]
+  b <- d[5:6]
+  b <- b[c(2,1)]
+  #b <- b[c(3,4,1,2,5)]
+  # get nunber of rows and itrate through them
+  numberOfRows <- nrow(d)
+  # change the schemas from fectors to char
+  a1$casestudy <- as.character(a1$casestudy)
+  for (i in 1:numberOfRows) {
+    schema <- a1[i,]
+    # get generators for non-transformed
+    dr <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+    # get each generators for transformed data
+    #drp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "directedRandom")
+    #dravmp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
+
+    # Effect size for PSQL
+    postgres_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+                                                  (dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
+
+    dr_time <- (dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+    avmr_time <- (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
+
+    a[i,2] = ragtag::comparing_sig_timing(sample1 = avmr_time,
+                                          sample2 = dr_time,
+                                          effect = postgres_dravm,
+                                          result = a[i,2])
+
+
+    # Effect size for SQLite
+    sqlite_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+                                                (dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
+
+    # DR vs AVM-R U-test
+    dr_time <- (dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+    dravmp_time <- (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
+
+    b[i,2] = ragtag::comparing_sig_timing(sample1 = dravmp_time,
+                                          sample2 = dr_time,
+                                          effect = sqlite_dravm,
+                                          result = b[i,2])
+
+    # Effect size for HSQL
+    hsql_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+                                              (dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
+
+    # U-Test avm-r vs dr
+    dr_time <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+    dravm_time <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
+
+    c[i,2] = ragtag::comparing_sig_timing(sample1 = dravm_time,
+                                          sample2 = dr_time,
+                                          effect = hsql_dravm,
+                                          result = c[i,2])
+
+
+    # for latex purposes
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  # Combain data
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  #return(d)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
 
 table_generator_timing_hsql <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
@@ -2607,6 +2885,132 @@ table_generator_mutation_score_concentro <- function(d, rtrn = "tex", m = "media
   }
 }
 
+
+#' FUNCTION: table_generator_mutation_score_concentro_flipped
+#'
+#' Generates a latex table or data frame for mutation score per schema table with effect size and U test.
+#' Only for Concentro AVM and Random
+#' @param d Data frame of mutants
+#' @param rtrn Latex (tex) or a data frame (data)
+#' @param m Results shown as median or mean
+#' @return A A12 effect size and U-test of mutation score per schema compared pair wise
+#' @importFrom magrittr %>%
+#' @export
+table_generator_mutation_score_concentro_flipped <- function(d, rtrn = "tex", m = "median") {
+  # ordering mutants per run
+  #d <- d %>% dplyr::filter(schema != "iTrust")
+  d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
+  d <- ordering_mutants_per_schema_concentro(d)
+  # copying data frame so it can be compared for A12 and U-test
+  d1 <- d
+  if (m == "mean") {
+    d <- d %>% dplyr::group_by(schema, datagenerator, dbms)  %>%
+      dplyr::summarise(mutationScore = format(round(mean(mutationScore), 1), nsmall = 1))
+  } else {
+    d <- d %>% dplyr::group_by(schema, datagenerator, dbms)  %>%
+      dplyr::summarise(mutationScore = format(round(median(mutationScore), 1), nsmall = 1))
+  }
+  # Reshaping data frame
+  d <- reshape2::dcast(d, schema ~ dbms + datagenerator, value.var=c("mutationScore"))
+  a1 <- d[1]
+  # Splitting data frame per DBMS
+  d2 <- d[2:7]
+  d <- d2[ , order(names(d2))]
+  c <- d[1:2]
+  c <- c[c(2,1)]
+  #c <- c[c(3,4,1,2,5)]
+  a <- d[3:4]
+  a <- a[c(2,1)]
+  #a <- a[c(3,4,1,2,5)]
+  b <- d[5:6]
+  b <- b[c(2,1)]
+  #b <- b[c(3,4,1,2,5)]
+  # Schemas changed to
+  a1$schema <- as.character(a1$schema)
+  numberOfRows <- nrow(d)
+  for (i in 1:numberOfRows) {
+    schema1 <- a1[i,]
+    dr <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "directedRandom")
+    dravm <- d1 %>% dplyr::filter(schema == schema1, datagenerator == "dravm")
+
+
+    # PSQL A12
+    postgres_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+                                                  (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
+
+    # DR vs dravm
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+    dravm_mutation <- (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
+
+    a[i,2] = ragtag::comparing_sig(sample1 = dravm_mutation,
+                                   sample2 = dr_mutation,
+                                   effect = postgres_dravm,
+                                   result = a[i,2])
+
+
+    # A12 SQLite
+    sqlite_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+                                                (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
+
+    # Dr vs DRAVM
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+    dravm_mutation <- (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
+
+    b[i,2] = ragtag::comparing_sig(sample1 = dravm_mutation,
+                                   sample2 = dr_mutation,
+                                   effect = sqlite_dravm,
+                                   result = b[i,2])
+
+
+    # Effect size for HSQL
+    hsql_dravm <- ragtag::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+                                              (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
+
+    # DR vs AVMR
+    dr_mutation <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+    dravm_mutation <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
+
+    c[i,2] = ragtag::comparing_sig(sample1 = dravm_mutation,
+                                   sample2 = dr_mutation,
+                                   effect = hsql_dravm,
+                                   result = c[i,2])
+
+    if (a1[i,] == "NistXTS749") {
+      a1[i,] <- "NistXTSNine"
+    }
+    if (a1[i,] == "Iso3166") {
+      a1[i,] <- "Isoiii"
+    }
+    if (a1[i,] == "IsoFlav_R2") {
+      a1[i,] <- "IsoFlav"
+    }
+    if (a1[i,] == "NistDML181") {
+      a1[i,] <- "NistDMLi"
+    }
+    if (a1[i,] == "NistDML182") {
+      a1[i,] <- "NistDMLii"
+    }
+    if (a1[i,] == "NistDML183") {
+      a1[i,] <- "NistDMLiii"
+    }
+    if (a1[i,] == "NistXTS748") {
+      a1[i,] <- "NistXTSEight"
+    }
+    a1[i,] <- paste("\\", a1[i,], "ForTable", sep = "")
+  }
+  #a <- a[c(1,4,3,2)]
+  #b <- b[c(1,4,3,2)]
+  #c <- c[c(1,4,3,2)]
+  # With HSQL
+  d <- cbind(a1,c,a,b)
+  # Without HSQL
+  #d <- cbind(a1,a,b)
+  if (rtrn == "tex") {
+    return(print(xtable::xtable(d), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+  } else {
+    return(d)
+  }
+}
 
 #' FUNCTION: table_generator_mutant_operators
 #'
@@ -3825,9 +4229,9 @@ comparing_sig_timing <- function(sample1, sample2, effect, result) {
   r <- result
   # Check one-sided test
   if (p1 == TRUE & p2 == FALSE) {
-    r = paste("$\\APLdown$",result,"", sep = "")
-  } else if (p1 == FALSE & p2 == TRUE) {
     r = paste("$\\APLup$",result,"", sep = "")
+  } else if (p1 == FALSE & p2 == TRUE) {
+    r = paste("$\\APLdown$",result,"", sep = "")
   } else {
   }
 
