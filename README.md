@@ -1,4 +1,4 @@
-# Directed Random R Language Package
+# Domino R Language Package
 
 This repository contains an R package for "DOMINO" research paper. The `devtools` development framework was used to implement this R package. The content of this repository are the following:
 
