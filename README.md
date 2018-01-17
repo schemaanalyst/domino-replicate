@@ -8,7 +8,7 @@ This repository contains an R package for "DOMINO" research paper. The `devtools
 
 ## Getting Started
 
-The following instructions will get you a copy of the project up and running on your local R environment. This method is ideal if you plan to leverage, without modification, our existing functions and data sets.
+The following instructions will get you a copy of the project up and run in your local R environment. This method is ideal if you plan to leverage, without modification, our existing functions and data sets.
 
 ### Prerequisites
 
@@ -108,7 +108,7 @@ DONE ============================================
 
 The conventions we have used are explained in the following URLs:
 
-* [R Packages](http://r-pkgs.had.co.nz/) -  A site for ‚ÄúR packages‚Äù development. It was published with O‚ÄôReilly in April 2015.
+* [R Packages](http://r-pkgs.had.co.nz/) -  A site for ìR packagesî development. It was published with OíReilly in April 2015.
 * [README template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2).
 
 ## Built With
