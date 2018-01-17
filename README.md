@@ -72,7 +72,7 @@ If you are interested in extending this package with new data sets and/or your o
 following command to first clone this repository:
 
 ```shell
-git clone https://github.com/schemaanalyst/directedRandom-R-pkg.git
+git clone https://github.com/schemaanalyst/dominoR-pkg.git
 ```
 
 Furthermore, in your R environment, you can run each of the following commands. This will help you to build, install, load, and test our R packages using `devtools`:
