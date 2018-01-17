@@ -58,7 +58,7 @@ NOTE: The `rtrn` parameter is used to return either a dataframe (`rtrn = "data"`
 
 ```shell
 library(dominoR)
-?read_mutants
+?read_mutants()
 ?read_analysis()
 ?table_generator_coverage_others()
 ?table_generator_timing_others_nonRand()
