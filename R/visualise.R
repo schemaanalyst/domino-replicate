@@ -34,7 +34,7 @@ get_check_schemas_mutants <- function(d) {
   return(newData)
 }
 
-#' FUNCTION: concentro_table_combaining
+#' FUNCTION: domino_table_combaining
 #'
 #' Timing, Coverage and mutation scores combained.
 #' @param ana Data frame of analysis
@@ -42,28 +42,28 @@ get_check_schemas_mutants <- function(d) {
 #' @return A data frame of check constraints only schemas or table LaTeX
 #' @importFrom magrittr %>%
 #' @export
-concentro_table_combaining <- function(ana, mut, rtrn = "tex", mm = "median") {
+domino_table_combaining <- function(ana, mut, rtrn = "tex", mm = "median") {
   newAna <- dominoR::get_check_schemas_analysis(ana)
   newMut <- dominoR::get_check_schemas_mutants(mut)
 
-  #coverage_concentro <- dominoR::table_generator_coverage_concentro(newAna, m = mm, rtrn = "data")
-  #timing_concentro <- dominoR::table_generator_timing_concentro(newAna, m = mm, rtrn = "data")
-  #mutants_concentro <- dominoR::table_generator_mutation_score_concentro(newMut, m = mm, rtrn = "data")
+  #coverage_domino <- dominoR::table_generator_coverage_domino(newAna, m = mm, rtrn = "data")
+  #timing_domino <- dominoR::table_generator_timing_domino(newAna, m = mm, rtrn = "data")
+  #mutants_domino <- dominoR::table_generator_mutation_score_domino(newMut, m = mm, rtrn = "data")
 
-  coverage_concentro <- dominoR::table_generator_coverage_concentro_flipped(newAna, m = mm, rtrn = "data")
-  timing_concentro <- dominoR::table_generator_timing_concentro_flipped(newAna, m = mm, rtrn = "data")
-  mutants_concentro <- dominoR::table_generator_mutation_score_concentro_flipped(newMut, m = mm, rtrn = "data")
+  coverage_domino <- dominoR::table_generator_coverage_domino_flipped(newAna, m = mm, rtrn = "data")
+  timing_domino <- dominoR::table_generator_timing_domino_flipped(newAna, m = mm, rtrn = "data")
+  mutants_domino <- dominoR::table_generator_mutation_score_domino_flipped(newMut, m = mm, rtrn = "data")
 
-  colnames(coverage_concentro) <- paste(colnames(coverage_concentro), "cov", sep = "_")
-  colnames(timing_concentro) <- paste(colnames(timing_concentro), "time", sep = "_")
-  colnames(mutants_concentro) <- paste(colnames(mutants_concentro), "mutant", sep = "_")
+  colnames(coverage_domino) <- paste(colnames(coverage_domino), "cov", sep = "_")
+  colnames(timing_domino) <- paste(colnames(timing_domino), "time", sep = "_")
+  colnames(mutants_domino) <- paste(colnames(mutants_domino), "mutant", sep = "_")
 
-  all_concentro <- cbind(coverage_concentro, timing_concentro[2:7], mutants_concentro[2:7])
+  all_domino <- cbind(coverage_domino, timing_domino[2:7], mutants_domino[2:7])
 
   if (rtrn == "tex") {
-    return(print(xtable::xtable(all_concentro), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
+    return(print(xtable::xtable(all_domino), include.rownames=FALSE ,sanitize.text.function = function(x){x}))
   } else {
-    return(all_concentro)
+    return(all_domino)
   }
 }
 
@@ -485,17 +485,17 @@ table_generator_coverage_others <- function(d, rtrn = "tex", m = "median") {
   }
 }
 
-#' FUNCTION: table_generator_coverage_concentro
+#' FUNCTION: table_generator_coverage_domino
 #'
 #' Generates a latex table or a data frame for coverage table with effect size and U test.
-#' Only for Concentro AVM and Random
+#' Only for domino AVM and Random
 #' @param d Data frame of analysis
 #' @param rtrn Latex (tex) or a data frame (data)
 #' @param m Results shown as median or mean
 #' @return A A12 effect size and U-test of coverages compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_coverage_concentro <- function(d, rtrn = "tex", m = "median") {
+table_generator_coverage_domino <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
@@ -616,17 +616,17 @@ table_generator_coverage_concentro <- function(d, rtrn = "tex", m = "median") {
 }
 
 
-#' FUNCTION: table_generator_coverage_concentro_flipped
+#' FUNCTION: table_generator_coverage_domino_flipped
 #'
 #' Generates a latex table or a data frame for coverage table with effect size and U test.
-#' Only for Concentro AVM and Random
+#' Only for domino AVM and Random
 #' @param d Data frame of analysis
 #' @param rtrn Latex (tex) or a data frame (data)
 #' @param m Results shown as median or mean
 #' @return A A12 effect size and U-test of coverages compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_coverage_concentro_flipped <- function(d, rtrn = "tex", m = "median") {
+table_generator_coverage_domino_flipped <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
@@ -1604,17 +1604,17 @@ table_generator_timing_others_nonRand <- function(d, rtrn = "tex", m = "median")
   }
 }
 
-#' FUNCTION: table_generator_timing_concentro
+#' FUNCTION: table_generator_timing_domino
 #'
 #' Generates a latex table or data frame for test generation timing table with effect size and U test.
-#' Only for Concentro AVM and Random
+#' Only for domino AVM and Random
 #' @param d Data frame of analysis
 #' @param rtrn Latex (tex) or a data frame (data)
 #' @param m Results shown as median or mean
 #' @return A A12 effect size and U-test of test generation timing compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_timing_concentro <- function(d, rtrn = "tex", m = "median") {
+table_generator_timing_domino <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   #d <- d %>% dplyr::filter(casestudy != "iTrust")
@@ -1742,17 +1742,17 @@ table_generator_timing_concentro <- function(d, rtrn = "tex", m = "median") {
   }
 }
 
-#' FUNCTION: table_generator_timing_concentro_flipped
+#' FUNCTION: table_generator_timing_domino_flipped
 #'
 #' Generates a latex table or data frame for test generation timing table with effect size and U test.
-#' Only for Concentro AVM and Random
+#' Only for domino AVM and Random
 #' @param d Data frame of analysis
 #' @param rtrn Latex (tex) or a data frame (data)
 #' @param m Results shown as median or mean
 #' @return A A12 effect size and U-test of test generation timing compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_timing_concentro_flipped <- function(d, rtrn = "tex", m = "median") {
+table_generator_timing_domino_flipped <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   #d <- d %>% dplyr::filter(casestudy != "iTrust")
@@ -2762,21 +2762,21 @@ table_generator_mutation_score_others_nonRand <- function(d, rtrn = "tex", m = "
   }
 }
 
-#' FUNCTION: table_generator_mutation_score_concentro
+#' FUNCTION: table_generator_mutation_score_domino
 #'
 #' Generates a latex table or data frame for mutation score per schema table with effect size and U test.
-#' Only for Concentro AVM and Random
+#' Only for domino AVM and Random
 #' @param d Data frame of mutants
 #' @param rtrn Latex (tex) or a data frame (data)
 #' @param m Results shown as median or mean
 #' @return A A12 effect size and U-test of mutation score per schema compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_mutation_score_concentro <- function(d, rtrn = "tex", m = "median") {
+table_generator_mutation_score_domino <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
   #d <- d %>% dplyr::filter(schema != "iTrust")
   d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
-  d <- ordering_mutants_per_schema_concentro(d)
+  d <- ordering_mutants_per_schema_domino(d)
   # copying data frame so it can be compared for A12 and U-test
   d1 <- d
   if (m == "mean") {
@@ -2886,21 +2886,21 @@ table_generator_mutation_score_concentro <- function(d, rtrn = "tex", m = "media
 }
 
 
-#' FUNCTION: table_generator_mutation_score_concentro_flipped
+#' FUNCTION: table_generator_mutation_score_domino_flipped
 #'
 #' Generates a latex table or data frame for mutation score per schema table with effect size and U test.
-#' Only for Concentro AVM and Random
+#' Only for domino AVM and Random
 #' @param d Data frame of mutants
 #' @param rtrn Latex (tex) or a data frame (data)
 #' @param m Results shown as median or mean
 #' @return A A12 effect size and U-test of mutation score per schema compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_mutation_score_concentro_flipped <- function(d, rtrn = "tex", m = "median") {
+table_generator_mutation_score_domino_flipped <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
   #d <- d %>% dplyr::filter(schema != "iTrust")
   d <- d %>% dplyr::filter(datagenerator %in% c("directedRandom", "dravm"))
-  d <- ordering_mutants_per_schema_concentro(d)
+  d <- ordering_mutants_per_schema_domino(d)
   # copying data frame so it can be compared for A12 and U-test
   d1 <- d
   if (m == "mean") {
@@ -3306,7 +3306,7 @@ table_generator_mutant_operators <- function(d, rtrn = "tex", m = "median") {
 }
 
 
-#' FUNCTION: table_generator_mutant_operators_concentro
+#' FUNCTION: table_generator_mutant_operators_domino
 #'
 #' Generates a latex table or data frame for mutation operators table with effect size and U test.
 #' @param d Data frame of mutants
@@ -3315,9 +3315,9 @@ table_generator_mutant_operators <- function(d, rtrn = "tex", m = "median") {
 #' @return A A12 effect size and U-test of mutation score per operator compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_mutant_operators_concentro <- function(d, rtrn = "tex", m = "median") {
+table_generator_mutant_operators_domino <- function(d, rtrn = "tex", m = "median") {
   # Order mutants per run
-  d <- ordering_mutants_per_operator_concentro(d)
+  d <- ordering_mutants_per_operator_domino(d)
   #browser()
 
   # copying data before reshaping
@@ -3838,15 +3838,15 @@ ordering_mutants_per_schema_others <- function(d) {
   return(dt)
 }
 
-#' FUNCTION: ordering_mutants_per_schema_concentro
+#' FUNCTION: ordering_mutants_per_schema_domino
 #'
 #' It generates an ordered data frame of mutants (normal type) grouped by each run per schema and its mutation score.
-#' Only for Concentro AVM and Random
+#' Only for domino AVM and Random
 #' @param d Data frame of mutants
 #' @return A data frame of ordred mutants and grouped by runs and mutation score per run per schema
 #' @importFrom magrittr %>%
 #' @export
-ordering_mutants_per_schema_concentro <- function(d) {
+ordering_mutants_per_schema_domino <- function(d) {
 
   # Only selecting normal mutants types
   d1 <- d %>% dplyr::filter(type == "NORMAL")
@@ -4047,7 +4047,7 @@ ordering_mutants_per_operator <- function(d) {
 #' @return A data frame of ordred mutants and grouped by runs and mutation score per run per operator
 #' @importFrom magrittr %>%
 #' @export
-ordering_mutants_per_operator_concentro <- function(d) {
+ordering_mutants_per_operator_domino <- function(d) {
   # Only selecting normal mutants types
   d1 <- d %>% dplyr::filter(type == "NORMAL")
   dt <- NULL
