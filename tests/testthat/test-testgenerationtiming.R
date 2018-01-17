@@ -4,7 +4,7 @@ context("test-testgenerationtiming.R")
 test_that("Sample Size of test generation timings", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
   dr <- analysis %>% filter(datagenerator == "directedRandom")
@@ -32,7 +32,7 @@ context("testgenerationtiming-median-results")
 test_that("Medians for test generation timings resutls", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
   dr <- analysis %>% filter(datagenerator == "directedRandom")
@@ -64,7 +64,7 @@ context("testgenerationtiming-u-test-results")
 test_that("U-Test resutls for test generation timings", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
   dr <- analysis %>% filter(datagenerator == "directedRandom")
@@ -97,7 +97,7 @@ context("testgenerationtiming-effect-size-results")
 test_that("Effect size results for test generation timings", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
   dr <- analysis %>% filter(datagenerator == "directedRandom")
@@ -114,16 +114,16 @@ test_that("Effect size results for test generation timings", {
 
   # Transformation of test generation timing
 
-  #dr_StudentResidence <- ragtag::transform_execution_times_for_threshold(dr_StudentResidence, 1000)
-  #avmr_StudentResidence <- ragtag::transform_execution_times_for_threshold(avmr_StudentResidence, 1000)
-  #avmd_StudentResidence <- ragtag::transform_execution_times_for_threshold(avmd_StudentResidence, 1000)
-  #rand_StudentResidence <- ragtag::transform_execution_times_for_threshold(rand_StudentResidence, 1000)
+  #dr_StudentResidence <- dominoR::transform_execution_times_for_threshold(dr_StudentResidence, 1000)
+  #avmr_StudentResidence <- dominoR::transform_execution_times_for_threshold(avmr_StudentResidence, 1000)
+  #avmd_StudentResidence <- dominoR::transform_execution_times_for_threshold(avmd_StudentResidence, 1000)
+  #rand_StudentResidence <- dominoR::transform_execution_times_for_threshold(rand_StudentResidence, 1000)
 
   # Testing Effect size
 
-  avmr_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$testgenerationtime, avmr_StudentResidence$testgenerationtime)$size
-  avmd_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$testgenerationtime, avmd_StudentResidence$testgenerationtime)$size
-  rand_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$testgenerationtime, rand_StudentResidence$testgenerationtime)$size
+  avmr_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$testgenerationtime, avmr_StudentResidence$testgenerationtime)$size
+  avmd_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$testgenerationtime, avmd_StudentResidence$testgenerationtime)$size
+  rand_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$testgenerationtime, rand_StudentResidence$testgenerationtime)$size
 
   expect_equal(avmr_effectsize, "large")
 

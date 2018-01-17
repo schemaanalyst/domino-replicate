@@ -4,7 +4,7 @@ context("test-mutation-scores.R")
 test_that("Sample Size of mutants per schema", {
   setwd('../../')
   # Gettting Mutants
-  mutants <- ragtag::read_mutants()
+  mutants <- dominoR::read_mutants()
   # Filtering mutants and getting precentage kills SQLite
   mutants <- mutants %>% filter(type == "NORMAL", dbms == "SQLite") %>% select(identifier, dbms, schema, datagenerator, killed) %>% group_by(identifier, dbms, schema, datagenerator) %>% summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false"))) %>% mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
   # getting mutants per generator
@@ -34,7 +34,7 @@ context("mutant-scores-mean-results")
 test_that("Averages for mutation socres", {
   setwd('../../')
   # Gettting Mutants
-  mutants <- ragtag::read_mutants()
+  mutants <- dominoR::read_mutants()
   # Filtering mutants and getting precentage kills SQLite
   mutants <- mutants %>% filter(type == "NORMAL", dbms == "SQLite") %>% select(identifier, dbms, schema, datagenerator, killed) %>% group_by(identifier, dbms, schema, datagenerator) %>% summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false"))) %>% mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
   # getting mutants per generator
@@ -72,7 +72,7 @@ context("mutant-scores-u-test-results")
 test_that("U-test results for mutation socres", {
   setwd('../../')
   # Gettting Mutants
-  mutants <- ragtag::read_mutants()
+  mutants <- dominoR::read_mutants()
   # Filtering mutants and getting precentage kills SQLite
   mutants <- mutants %>% filter(type == "NORMAL", dbms == "SQLite") %>% select(identifier, dbms, schema, datagenerator, killed) %>% group_by(identifier, dbms, schema, datagenerator) %>% summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false"))) %>% mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
   # getting mutants per generator
@@ -106,7 +106,7 @@ context("mutant-scores-effect-size-results")
 test_that("Effect size reuslts for mutation scores", {
   setwd('../../')
   # Gettting Mutants
-  mutants <- ragtag::read_mutants()
+  mutants <- dominoR::read_mutants()
   # Filtering mutants and getting precentage kills SQLite
   mutants <- mutants %>% filter(type == "NORMAL", dbms == "SQLite") %>% select(identifier, dbms, schema, datagenerator, killed) %>% group_by(identifier, dbms, schema, datagenerator) %>% summarise(killed_mutants = sum(killed == "true"), total_mutants = (sum(killed == "true") + sum(killed == "false"))) %>% mutate(mutationScore = round((killed_mutants/total_mutants) * 100, 2))
   # getting mutants per generator
@@ -125,9 +125,9 @@ test_that("Effect size reuslts for mutation scores", {
 
   # Testing Effect size
 
-  avmr_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$mutationScore, avmr_StudentResidence$mutationScore)$size
-  avmd_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$mutationScore, avmd_StudentResidence$mutationScore)$size
-  rand_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$mutationScore, rand_StudentResidence$mutationScore)$size
+  avmr_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$mutationScore, avmr_StudentResidence$mutationScore)$size
+  avmd_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$mutationScore, avmd_StudentResidence$mutationScore)$size
+  rand_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$mutationScore, rand_StudentResidence$mutationScore)$size
 
   expect_equal(avmr_effectsize, "small")
 

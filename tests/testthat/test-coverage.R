@@ -3,7 +3,7 @@ context("test-coverage.R")
 test_that("Sample size of coverages for StudentResidence schema", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
 
@@ -33,7 +33,7 @@ context("coverages-median-resutlts")
 test_that("Testing Coverage Table Median resutls", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
 
@@ -67,7 +67,7 @@ context("coverages-effect-size")
 test_that("Generating effect size for coverage", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
 
@@ -85,9 +85,9 @@ test_that("Generating effect size for coverage", {
 
   # Testing Effect size
 
-  avmr_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$coverage, avmr_StudentResidence$coverage)$size
-  avmd_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$coverage, avmd_StudentResidence$coverage)$size
-  rand_effectsize <- ragtag::effectsize_accurate(dr_StudentResidence$coverage, rand_StudentResidence$coverage)$size
+  avmr_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$coverage, avmr_StudentResidence$coverage)$size
+  avmd_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$coverage, avmd_StudentResidence$coverage)$size
+  rand_effectsize <- dominoR::effectsize_accurate(dr_StudentResidence$coverage, rand_StudentResidence$coverage)$size
 
   expect_equal(avmr_effectsize, "none")
 
@@ -102,7 +102,7 @@ context("coverages-u-test")
 test_that("Generate U-Test results for StudentResidence schema per generator", {
   setwd('../../')
   # Gettting Mutants
-  analysis <- ragtag::read_analysis()
+  analysis <- dominoR::read_analysis()
   # getting mutants per generator
   analysis <- analysis %>% filter(dbms == "HyperSQL")
 

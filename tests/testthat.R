@@ -1,4 +1,4 @@
 library(testthat)
-library(ragtag)
+library(dominoR)
 
-test_check("ragtag")
+test_check("dominoR")
