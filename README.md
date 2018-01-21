@@ -46,10 +46,10 @@ analysis <- dominoR::read_mutants()
 * Generating Tables (Latex or dataframes):
 
 ```shell
-dominoR::table_generator_coverage_others((ana %>% filter(datagenerator != "dravm")), rtrn = "tex",m = "mean") # Table 2 In our paper
-dominoR::table_generator_timing_others_nonRand((ana %>% filter(datagenerator != "dravm")), rtrn = "tex", m = "mean") # Table 3
-dominoR::table_generator_mutation_score_others_nonRand(mut, rtrn = "tex", m = "mean") # Table 4
-dominoR::domino_table_combaining(ana, mut, rtrn = "tex", mm = "mean") # Table 5
+dominoR::table_generator_coverage((analysis %>% filter(datagenerator != "dravm")), rtrn = "tex",m = "mean") # Table 2 In our paper
+dominoR::table_generator_timing_nonRandom((analysis %>% filter(datagenerator != "dravm")), rtrn = "tex", m = "mean") # Table 3
+dominoR::table_generator_mutation_score_nonRandom(mutants, rtrn = "tex", m = "mean") # Table 4
+dominoR::domino_table_combined(analysis, mutants, rtrn = "tex", mm = "mean") # Table 5
 ```
 
 NOTE: The `rtrn` parameter is used to return either a dataframe (`rtrn = "data"`) or a latex table (`rtrn = "tex"`). The `m` parameter is used to print the table as `median` or `mean` results.

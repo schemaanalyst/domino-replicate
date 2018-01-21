@@ -34,7 +34,7 @@ get_check_schemas_mutants <- function(d) {
   return(newData)
 }
 
-#' FUNCTION: domino_table_combaining
+#' FUNCTION: domino_table_combined
 #'
 #' Timing, Coverage and mutation scores combained.
 #' @param ana Data frame of analysis
@@ -42,7 +42,7 @@ get_check_schemas_mutants <- function(d) {
 #' @return A data frame of check constraints only schemas or table LaTeX
 #' @importFrom magrittr %>%
 #' @export
-domino_table_combaining <- function(ana, mut, rtrn = "tex", mm = "median") {
+domino_table_combined <- function(ana, mut, rtrn = "tex", mm = "median") {
   newAna <- dominoR::get_check_schemas_analysis(ana)
   newMut <- dominoR::get_check_schemas_mutants(mut)
 
@@ -67,7 +67,7 @@ domino_table_combaining <- function(ana, mut, rtrn = "tex", mm = "median") {
   }
 }
 
-#' FUNCTION: table_generator_coverage
+#' FUNCTION: table_generator_coverage_old
 #'
 #' Generates a latex table or a data frame for coverage table with effect size and U test.
 #' @param d Data frame of analysis
@@ -76,7 +76,7 @@ domino_table_combaining <- function(ana, mut, rtrn = "tex", mm = "median") {
 #' @return A A12 effect size and U-test of coverages compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
+table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   #d <- d %>% dplyr::filter(casestudy != "iTrust")
@@ -289,7 +289,7 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
   }
 }
 
-#' FUNCTION: table_generator_coverage_others
+#' FUNCTION: table_generator_coverage
 #'
 #' Generates a latex table or a data frame for coverage table with effect size and U test.
 #' @param d Data frame of analysis
@@ -298,7 +298,7 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 #' @return A A12 effect size and U-test of coverages compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_coverage_others <- function(d, rtrn = "tex", m = "median") {
+table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
@@ -982,7 +982,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
   }
 }
 
-#' FUNCTION: table_generator_timing_nonRand
+#' FUNCTION: table_generator_timing_nonRand_old
 #'
 #' Generates a latex table or data frame for test generation timing table with effect size and U test.
 #' @param d Data frame of analysis
@@ -991,7 +991,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
 #' @return A A12 effect size and U-test of test generation timing compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_timing_nonRand <- function(d, rtrn = "tex", m = "median") {
+table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "random")
@@ -1390,7 +1390,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
   }
 }
 
-#' FUNCTION: table_generator_timing_others_nonRand
+#' FUNCTION: table_generator_timing_nonRandom
 #'
 #' Generates a latex table or data frame for test generation timing table with effect size and U test.
 #' @param d Data frame of analysis
@@ -1399,7 +1399,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
 #' @return A A12 effect size and U-test of test generation timing compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_timing_others_nonRand <- function(d, rtrn = "tex", m = "median") {
+table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
   # Arrange dataframe by case study
   d <- d %>% dplyr::arrange(casestudy)
   #d <- d %>% dplyr::filter(casestudy != "iTrust", datagenerator != "dravm")
@@ -2571,7 +2571,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
   }
 }
 
-#' FUNCTION: table_generator_mutation_score_others_nonRand
+#' FUNCTION: table_generator_mutation_score_nonRandom
 #'
 #' Generates a latex table or data frame for mutation score per schema table with effect size and U test.
 #' @param d Data frame of mutants
@@ -2580,7 +2580,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
 #' @return A A12 effect size and U-test of mutation score per schema compared pair wise
 #' @importFrom magrittr %>%
 #' @export
-table_generator_mutation_score_others_nonRand <- function(d, rtrn = "tex", m = "median") {
+table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "median") {
   # ordering mutants per run
   #d <- d %>% dplyr::filter(schema != "iTrust", datagenerator != "dravm")
   d <- ordering_mutants_per_schema_others(d)
