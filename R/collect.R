@@ -9,56 +9,56 @@
 read_analysis <- function() {
   # collect all AVM-D
   rnd.avmd <- system.file("extdata", "mutation-analysis.dat",
-                               package="dominoR")
+                               package="dominoReplicate")
 
   # collect all AVM-R
   HyperSQL.avmr.itrust <- system.file("extdata", "30-HyperSQL-avs-itrust-mutationanalysis.dat",
-                               package="dominoR")
+                               package="dominoReplicate")
   SQLite.avmr.itrust <- system.file("extdata", "30-SQLite-avs-itrust-mutationanalysis.dat",
-                             package="dominoR")
+                             package="dominoReplicate")
   Postgres.avmr.itrust <- system.file("extdata", "30-Postgres-avs-itrust-mutationanalysis.dat",
-                               package="dominoR")
+                               package="dominoReplicate")
 
   HyperSQL.avmr.minusitrust <- system.file("extdata", "30-HyperSQL-avs-minusitrust-mutationanalysis.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
   SQLite.avmr.minusitrust <- system.file("extdata", "30-SQLite-avs-minusitrust-mutationanalysis.dat",
-                                    package="dominoR")
+                                    package="dominoReplicate")
   Postgres.avmr.minusitrust <- system.file("extdata", "30-Postgres-avs-minusitrust-mutationanalysis.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
 
   # collect all DrRan
 
   HyperSQL.directedRandom.itrust <- system.file("extdata", "30-HyperSQL-directedRandom-itrust-mutationanalysis.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
   SQLite.directedRandom.itrust <- system.file("extdata", "30-SQLite-directedRandom-itrust-mutationanalysis.dat",
-                                    package="dominoR")
+                                    package="dominoReplicate")
   Postgres.directedRandom.itrust <- system.file("extdata", "30-Postgres-directedRandom-itrust-mutationanalysis.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
 
   HyperSQL.directedRandom.minusitrust <- system.file("extdata", "30-HyperSQL-directedRandom-minusitrust-mutationanalysis.dat",
-                                           package="dominoR")
+                                           package="dominoReplicate")
   SQLite.directedRandom.minusitrust <- system.file("extdata", "30-SQLite-directedRandom-minusitrust-mutationanalysis.dat",
-                                         package="dominoR")
+                                         package="dominoReplicate")
   Postgres.directedRandom.minusitrust <- system.file("extdata", "30-Postgres-directedRandom-minusitrust-mutationanalysis.dat",
-                                           package="dominoR")
+                                           package="dominoReplicate")
 
   # collect all DrAVM
 
   HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-concentroAVS-itrust-mutationanalysis.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
   SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-concentroAVS-itrust-mutationanalysis.dat",
-                                    package="dominoR")
+                                    package="dominoReplicate")
   Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-concentroAVS-itrust-mutationanalysis.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
 
   HyperSQL.dravm.minusitrust <- system.file("extdata", "30-HyperSQL-concentroAVS-minusitrust-mutationanalysis.dat",
-                                           package="dominoR")
+                                           package="dominoReplicate")
   SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-concentroAVS-minusitrust-mutationanalysis.dat",
-                                         package="dominoR")
+                                         package="dominoReplicate")
   Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-concentroAVS-minusitrust-mutationanalysis.dat",
-                                           package="dominoR")
+                                           package="dominoReplicate")
 
-  #f <- system.file("extdata", "analysis.csv", package="dominoR")
+  #f <- system.file("extdata", "analysis.csv", package="dominoReplicate")
   # Read all :)
   d1 <- readr::read_csv(rnd.avmd)
 
@@ -95,7 +95,7 @@ read_analysis <- function() {
   allFrames <- allFrames %>% dplyr::mutate(casestudy = as.character(gsub("parsedcasestudy.","",casestudy)))
   allFrames$casestudy <- gsub("IsoFlav_R2Repaired", "IsoFlav_R2", allFrames$casestudy)
 
-  allFrames <- dominoR::read_failedtest_with_filtering(allFrames, type = "ana")
+  allFrames <- dominoReplicate::read_failedtest_with_filtering(allFrames, type = "ana")
 
   allFrames$datagenerator <- gsub("concentroAVS", "dravm", allFrames$datagenerator)
   allFrames$datagenerator <- gsub("concentroRandom", "directedRandom", allFrames$datagenerator)
@@ -145,7 +145,7 @@ read_failedtest_with_filtering <- function(dt, type = "ana") {
     }
 
     # Get failed test timing :)
-    data_path <- system.file("extdata", package="dominoR")
+    data_path <- system.file("extdata", package="dominoReplicate")
     files <- list.files(data_path, pattern = "*nonFullAll-mutationanalysis*",
                         full.names = TRUE)
     table <- lapply(files, readr::read_csv) %>% bind_rows()
@@ -191,7 +191,7 @@ read_failedtest_with_filtering <- function(dt, type = "ana") {
       main <- main %>% dplyr::filter(!(schema == case & datagenerator == "avs"))
     }
 
-    data_path <- system.file("extdata", package="dominoR")
+    data_path <- system.file("extdata", package="dominoReplicate")
 
     conR <- list.files(data_path,
                        pattern = "*concentroRandom-nonFullAll-mutanttiming*",
@@ -242,18 +242,18 @@ read_failedtest_with_filtering <- function(dt, type = "ana") {
 read_mutants <- function() {
   # collect all AVM-D
   hypersql.avmdefaults <- system.file("extdata", "hypersql-avmdefaults.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
   sqlite.avmdefaults <- system.file("extdata", "sqlite-avmdefaults.dat",
-                                    package="dominoR")
+                                    package="dominoReplicate")
   postgres.avmdefaults <- system.file("extdata", "postgres-avmdefaults.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
 
   hypersql.random <- system.file("extdata", "hypersql-random.dat",
-                                 package="dominoR")
+                                 package="dominoReplicate")
   sqlite.random <- system.file("extdata", "sqlite-random.dat",
-                               package="dominoR")
+                               package="dominoReplicate")
   postgres.random <- system.file("extdata", "postgres-random.dat",
-                                 package="dominoR")
+                                 package="dominoReplicate")
 
   # Read data
   d21 <- readr::read_csv(hypersql.avmdefaults)
@@ -275,18 +275,18 @@ read_mutants <- function() {
 
   # collect all AVM-R
   HyperSQL.avmr.itrust <- system.file("extdata", "30-HyperSQL-avs-itrust-mutanttiming.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
   SQLite.avmr.itrust <- system.file("extdata", "30-SQLite-avs-itrust-mutanttiming.dat",
-                                    package="dominoR")
+                                    package="dominoReplicate")
   Postgres.avmr.itrust <- system.file("extdata", "30-Postgres-avs-itrust-mutanttiming.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
 
   HyperSQL.avmr.minusitrust <- system.file("extdata", "30-HyperSQL-avs-minusitrust-mutanttiming.dat",
-                                           package="dominoR")
+                                           package="dominoReplicate")
   SQLite.avmr.minusitrust <- system.file("extdata", "30-SQLite-avs-minusitrust-mutanttiming.dat",
-                                         package="dominoR")
+                                         package="dominoReplicate")
   Postgres.avmr.minusitrust <- system.file("extdata", "30-Postgres-avs-minusitrust-mutanttiming.dat",
-                                           package="dominoR")
+                                           package="dominoReplicate")
 
   # Read data
   d2 <- readr::read_csv(HyperSQL.avmr.minusitrust)
@@ -308,18 +308,18 @@ read_mutants <- function() {
   # collect all DrRan
 
   HyperSQL.directedRandom.itrust <- system.file("extdata", "30-HyperSQL-directedRandom-itrust-mutanttiming.dat",
-                                                package="dominoR")
+                                                package="dominoReplicate")
   SQLite.directedRandom.itrust <- system.file("extdata", "30-SQLite-directedRandom-itrust-mutanttiming.dat",
-                                              package="dominoR")
+                                              package="dominoReplicate")
   Postgres.directedRandom.itrust <- system.file("extdata", "30-Postgres-directedRandom-itrust-mutanttiming.dat",
-                                                package="dominoR")
+                                                package="dominoReplicate")
 
   HyperSQL.directedRandom.minusitrust <- system.file("extdata", "30-HyperSQL-directedRandom-minusitrust-mutanttiming.dat",
-                                                     package="dominoR")
+                                                     package="dominoReplicate")
   SQLite.directedRandom.minusitrust <- system.file("extdata", "30-SQLite-directedRandom-minusitrust-mutanttiming.dat",
-                                                   package="dominoR")
+                                                   package="dominoReplicate")
   Postgres.directedRandom.minusitrust <- system.file("extdata", "30-Postgres-directedRandom-minusitrust-mutanttiming.dat",
-                                                     package="dominoR")
+                                                     package="dominoReplicate")
   # Read data
   d8 <- readr::read_csv(HyperSQL.directedRandom.minusitrust)
   d9 <- readr::read_csv(SQLite.directedRandom.minusitrust)
@@ -340,18 +340,18 @@ read_mutants <- function() {
   # collect all DrAVM
 
   HyperSQL.dravm.itrust <- system.file("extdata", "30-HyperSQL-concentroAVS-itrust-mutanttiming.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
   SQLite.dravm.itrust <- system.file("extdata", "30-SQLite-concentroAVS-itrust-mutanttiming.dat",
-                                     package="dominoR")
+                                     package="dominoReplicate")
   Postgres.dravm.itrust <- system.file("extdata", "30-Postgres-concentroAVS-itrust-mutanttiming.dat",
-                                      package="dominoR")
+                                      package="dominoReplicate")
 
   HyperSQL.dravm.minusitrust <- system.file("extdata", "30-HyperSQL-concentroAVS-minusitrust-mutanttiming.dat",
-                                            package="dominoR")
+                                            package="dominoReplicate")
   SQLite.dravm.minusitrust <- system.file("extdata", "30-SQLite-concentroAVS-minusitrust-mutanttiming.dat",
-                                          package="dominoR")
+                                          package="dominoReplicate")
   Postgres.dravm.minusitrust <- system.file("extdata", "30-Postgres-concentroAVS-minusitrust-mutanttiming.dat",
-                                            package="dominoR")
+                                            package="dominoReplicate")
 
   d17 <- readr::read_csv(HyperSQL.dravm.minusitrust)
   d18 <- readr::read_csv(SQLite.dravm.minusitrust)
@@ -375,7 +375,7 @@ read_mutants <- function() {
   allFrames$datagenerator <- gsub("concentroAVS", "dravm", allFrames$datagenerator)
   allFrames$datagenerator <- gsub("concentroRandom", "directedRandom", allFrames$datagenerator)
 
-  allFrames <- dominoR::read_failedtest_with_filtering(allFrames, type = "mut")
+  allFrames <- dominoReplicate::read_failedtest_with_filtering(allFrames, type = "mut")
 
   allFrames$datagenerator <- gsub("concentroAVS", "dravm", allFrames$datagenerator)
   allFrames$datagenerator <- gsub("concentroRandom", "directedRandom", allFrames$datagenerator)

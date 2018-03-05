@@ -29,7 +29,7 @@ You would need `devtools` to install our package:
 You can type the following command in your R development environment if you want to install this package:
 
 ```shell
-devtools::install_github("schemaanalyst/dominoR-pkg")
+devtools::install_github("schemaanalyst/domino-replicate")
 ```
 
 ### Example
@@ -39,17 +39,17 @@ Within your R environment, use the following commands:
 * Reading data sets into dataframes (directedRandom is translated to Domino and dravm is translated to DominoAVM):
 
 ```shell
-mutants <- dominoR::read_analysis()
-analysis <- dominoR::read_mutants()
+analysis <- dominoReplicate::read_analysis()
+mutants <- dominoReplicate::read_mutants()
 ```
 
 * Generating Tables (Latex or dataframes):
 
 ```shell
-dominoR::table_generator_coverage((analysis %>% filter(datagenerator != "dravm")), rtrn = "tex",m = "mean") # Table 2 In our paper
-dominoR::table_generator_timing_nonRandom((analysis %>% filter(datagenerator != "dravm")), rtrn = "tex", m = "mean") # Table 3
-dominoR::table_generator_mutation_score_nonRandom(mutants, rtrn = "tex", m = "mean") # Table 4
-dominoR::domino_table_combined(analysis, mutants, rtrn = "tex", mm = "mean") # Table 5
+dominoReplicate::table_generator_coverage((analysis %>% filter(datagenerator != "dravm")), rtrn = "tex",m = "mean") # Table 2 In our paper
+dominoReplicate::table_generator_timing_nonRandom((analysis %>% filter(datagenerator != "dravm")), rtrn = "tex", m = "mean") # Table 3
+dominoReplicate::table_generator_mutation_score_nonRandom(mutants, rtrn = "tex", m = "mean") # Table 4
+dominoReplicate::domino_table_combined(analysis, mutants, rtrn = "tex", mm = "mean") # Table 5
 ```
 
 NOTE: The `rtrn` parameter is used to return either a dataframe (`rtrn = "data"`) or a latex table (`rtrn = "tex"`). The `m` parameter is used to print the table as `median` or `mean` results.
@@ -57,7 +57,7 @@ NOTE: The `rtrn` parameter is used to return either a dataframe (`rtrn = "data"`
 * For more information about our functions please type this:
 
 ```shell
-library(dominoR)
+library(dominoReplicate)
 ?read_mutants()
 ?read_analysis()
 ?table_generator_coverage_others()
@@ -72,7 +72,7 @@ If you are interested in extending this package with new data sets and/or your o
 following command to first clone this repository:
 
 ```shell
-git clone https://github.com/schemaanalyst/dominoR-pkg.git
+git clone https://github.com/schemaanalyst/domino-replicate.git
 ```
 
 Furthermore, in your R environment, you can run each of the following commands. This will help you to build, install, load, and test our R packages using `devtools`:

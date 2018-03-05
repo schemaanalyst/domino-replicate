@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualise.R
 \name{comparing_sig}
 \alias{comparing_sig}
-\title{FUNCTION: dominoR::comparing_sig}
+\title{FUNCTION: dominoReplicate::comparing_sig}
 \usage{
 comparing_sig(sample1, sample2, effect, result)
 }
@@ -10,5 +10,5 @@ comparing_sig(sample1, sample2, effect, result)
 latex of cell
 }
 \description{
-FUNCTION: dominoR::comparing_sig
+FUNCTION: dominoReplicate::comparing_sig
 }

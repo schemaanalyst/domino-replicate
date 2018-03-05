@@ -43,16 +43,16 @@ get_check_schemas_mutants <- function(d) {
 #' @importFrom magrittr %>%
 #' @export
 domino_table_combined <- function(ana, mut, rtrn = "tex", mm = "median") {
-  newAna <- dominoR::get_check_schemas_analysis(ana)
-  newMut <- dominoR::get_check_schemas_mutants(mut)
+  newAna <- dominoReplicate::get_check_schemas_analysis(ana)
+  newMut <- dominoReplicate::get_check_schemas_mutants(mut)
 
-  #coverage_domino <- dominoR::table_generator_coverage_domino(newAna, m = mm, rtrn = "data")
-  #timing_domino <- dominoR::table_generator_timing_domino(newAna, m = mm, rtrn = "data")
-  #mutants_domino <- dominoR::table_generator_mutation_score_domino(newMut, m = mm, rtrn = "data")
+  #coverage_domino <- dominoReplicate::table_generator_coverage_domino(newAna, m = mm, rtrn = "data")
+  #timing_domino <- dominoReplicate::table_generator_timing_domino(newAna, m = mm, rtrn = "data")
+  #mutants_domino <- dominoReplicate::table_generator_mutation_score_domino(newMut, m = mm, rtrn = "data")
 
-  coverage_domino <- dominoR::table_generator_coverage_domino_flipped(newAna, m = mm, rtrn = "data")
-  timing_domino <- dominoR::table_generator_timing_domino_flipped(newAna, m = mm, rtrn = "data")
-  mutants_domino <- dominoR::table_generator_mutation_score_domino_flipped(newMut, m = mm, rtrn = "data")
+  coverage_domino <- dominoReplicate::table_generator_coverage_domino_flipped(newAna, m = mm, rtrn = "data")
+  timing_domino <- dominoReplicate::table_generator_timing_domino_flipped(newAna, m = mm, rtrn = "data")
+  mutants_domino <- dominoReplicate::table_generator_mutation_score_domino_flipped(newMut, m = mm, rtrn = "data")
 
   colnames(coverage_domino) <- paste(colnames(coverage_domino), "cov", sep = "_")
   colnames(timing_domino) <- paste(colnames(timing_domino), "time", sep = "_")
@@ -120,19 +120,19 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
     dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
 
     # Effect size for PSQL
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                          (avm %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                           (avmd %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                           (rand %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                            (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
 
     dr_coverage <- (dr %>% dplyr::filter(dbms == "Postgres"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = dravm_coverage,
                            effect = postgres_dravm,
                            result = a[i,2])
@@ -140,7 +140,7 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
     # get coverage
     avmr_coverage <- (avm %>% dplyr::filter(dbms == "Postgres"))$coverage
 
-    a[i,3] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,3] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmr_coverage,
                            effect = postgres_avm,
                            result = a[i,3])
@@ -148,7 +148,7 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
 
     # get coverage
     avmd_coverage <- (avmd %>% dplyr::filter(dbms == "Postgres"))$coverage
-    a[i,4] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,4] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmd_coverage,
                            effect = postgres_avmd,
                            result = a[i,4])
@@ -157,27 +157,27 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
     # U-test Random vs DR
     rand_coverage <- (rand %>% dplyr::filter(dbms == "Postgres"))$coverage
 
-    a[i,5] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,5] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = rand_coverage,
                            effect = postgres_rand,
                            result = a[i,5])
 
 
     # get SQLite effect size
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                        (avm %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                         (avmd %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                         (rand %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                          (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
 
     # get coverage
     dr_coverage <- (dr %>% dplyr::filter(dbms == "SQLite"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = dravm_coverage,
                            effect = sqlite_dravm,
                            result = b[i,2])
@@ -186,7 +186,7 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
 
     # U-test AVMR vs DR
     avmr_coverage <- (avm %>% dplyr::filter(dbms == "SQLite"))$coverage
-    b[i,3] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,3] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmr_coverage,
                            effect = sqlite_avm,
                            result = b[i,3])
@@ -195,7 +195,7 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
 
     # U-test AVMD vs DR
     avmd_coverage <- (avmd %>% dplyr::filter(dbms == "SQLite"))$coverage
-    b[i,4] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,4] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmd_coverage,
                            effect = sqlite_avmd,
                            result = b[i,4])
@@ -203,25 +203,25 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
 
     # U-test Random vs DR
     rand_coverage <- (rand %>% dplyr::filter(dbms == "SQLite"))$coverage
-    b[i,5] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,5] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = rand_coverage,
                            effect = sqlite_rand,
                            result = b[i,5])
 
     # calculate effect size for coverage for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                                      (avm %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                                       (avmd %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                                       (rand %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                                        (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
 
     # U-test DRAVM vs DR
     dr_coverage <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = dravm_coverage,
                            effect = hsql_dravm,
                            result = c[i,2])
@@ -229,7 +229,7 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
 
     # U-test AVMR vs DR
     avmr_coverage <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
-    c[i,3] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,3] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmr_coverage,
                            effect = hsql_avm,
                            result = c[i,3])
@@ -237,14 +237,14 @@ table_generator_coverage_old <- function(d, rtrn = "tex", m = "median") {
 
 
     avmd_coverage <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$coverage
-    c[i,4] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,4] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmd_coverage,
                            effect = hsql_avmd,
                            result = c[i,4])
 
 
     rand_coverage <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$coverage
-    c[i,5] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,5] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = rand_coverage,
                            effect = hsql_rand,
                            result = c[i,5])
@@ -342,11 +342,11 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
     rand <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "random")
 
     # Effect size for PSQL
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                 (avm %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                  (avmd %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                  (rand %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
 
     dr_coverage <- (dr %>% dplyr::filter(dbms == "Postgres"))$coverage
@@ -354,7 +354,7 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
     # get coverage
     avmr_coverage <- (avm %>% dplyr::filter(dbms == "Postgres"))$coverage
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmr_coverage,
                            effect = postgres_avm,
                            result = a[i,2])
@@ -362,7 +362,7 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 
     # get coverage
     avmd_coverage <- (avmd %>% dplyr::filter(dbms == "Postgres"))$coverage
-    a[i,3] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,3] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmd_coverage,
                            effect = postgres_avmd,
                            result = a[i,3])
@@ -371,18 +371,18 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
     # U-test Random vs DR
     rand_coverage <- (rand %>% dplyr::filter(dbms == "Postgres"))$coverage
 
-    a[i,4] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,4] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = rand_coverage,
                            effect = postgres_rand,
                            result = a[i,4])
 
 
     # get SQLite effect size
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                               (avm %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                (avmd %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                (rand %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
 
     # get coverage
@@ -390,7 +390,7 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 
     # U-test AVMR vs DR
     avmr_coverage <- (avm %>% dplyr::filter(dbms == "SQLite"))$coverage
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmr_coverage,
                            effect = sqlite_avm,
                            result = b[i,2])
@@ -399,7 +399,7 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 
     # U-test AVMD vs DR
     avmd_coverage <- (avmd %>% dplyr::filter(dbms == "SQLite"))$coverage
-    b[i,3] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,3] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmd_coverage,
                            effect = sqlite_avmd,
                            result = b[i,3])
@@ -407,17 +407,17 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 
     # U-test Random vs DR
     rand_coverage <- (rand %>% dplyr::filter(dbms == "SQLite"))$coverage
-    b[i,4] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,4] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = rand_coverage,
                            effect = sqlite_rand,
                            result = b[i,4])
 
     # calculate effect size for coverage for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                             (avm %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                              (avmd %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                              (rand %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
 
     # U-test DRAVM vs DR
@@ -425,7 +425,7 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 
     # U-test AVMR vs DR
     avmr_coverage <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmr_coverage,
                            effect = hsql_avm,
                            result = c[i,2])
@@ -433,14 +433,14 @@ table_generator_coverage <- function(d, rtrn = "tex", m = "median") {
 
 
     avmd_coverage <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$coverage
-    c[i,3] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,3] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = avmd_coverage,
                            effect = hsql_avmd,
                            result = c[i,3])
 
 
     rand_coverage <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$coverage
-    c[i,4] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,4] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = rand_coverage,
                            effect = hsql_rand,
                            result = c[i,4])
@@ -538,39 +538,39 @@ table_generator_coverage_domino <- function(d, rtrn = "tex", m = "median") {
     dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
 
     # Effect size for PSQL
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                   (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
 
     dr_coverage <- (dr %>% dplyr::filter(dbms == "Postgres"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = dravm_coverage,
                            effect = postgres_dravm,
                            result = a[i,2])
 
     # get SQLite effect size
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                 (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
 
     # get coverage
     dr_coverage <- (dr %>% dplyr::filter(dbms == "SQLite"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = dravm_coverage,
                            effect = sqlite_dravm,
                            result = b[i,2])
 
     # calculate effect size for coverage for HSQL
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                               (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
 
     # U-test DRAVM vs DR
     dr_coverage <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_coverage,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_coverage,
                            sample2 = dravm_coverage,
                            effect = hsql_dravm,
                            result = c[i,2])
@@ -672,39 +672,39 @@ table_generator_coverage_domino_flipped <- function(d, rtrn = "tex", m = "median
     dravm <- d1 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
 
     # Effect size for PSQL
-    postgres_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$coverage,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$coverage,
                                                   (dr %>% dplyr::filter(dbms == "Postgres"))$coverage)$size
 
     dr_coverage <- (dr %>% dplyr::filter(dbms == "Postgres"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "Postgres"))$coverage
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dravm_coverage,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dravm_coverage,
                                    sample2 = dr_coverage,
                                    effect = postgres_dravm,
                                    result = a[i,2])
 
     # get SQLite effect size
-    sqlite_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$coverage,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$coverage,
                                                 (dr %>% dplyr::filter(dbms == "SQLite"))$coverage)$size
 
     # get coverage
     dr_coverage <- (dr %>% dplyr::filter(dbms == "SQLite"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "SQLite"))$coverage
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dravm_coverage,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dravm_coverage,
                                    sample2 = dr_coverage,
                                    effect = sqlite_dravm,
                                    result = b[i,2])
 
     # calculate effect size for coverage for HSQL
-    hsql_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage,
                                               (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage)$size
 
     # U-test DRAVM vs DR
     dr_coverage <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$coverage
     dravm_coverage <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$coverage
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dravm_coverage,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dravm_coverage,
                                    sample2 = dr_coverage,
                                    effect = hsql_dravm,
                                    result = c[i,2])
@@ -768,7 +768,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
   d3 <- d
   # Transform data with rounding down
   d1 <- d
-  # d1 <- dominoR::transform_execution_times_for_threshold(d, 1000)
+  # d1 <- dominoReplicate::transform_execution_times_for_threshold(d, 1000)
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>% dplyr::group_by(dbms, casestudy, datagenerator) %>% dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
@@ -803,13 +803,13 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
 
 
     # Effect size for PSQL
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                          (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                           (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                           (rand %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                            (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
 
     # get generators for non-transformed
@@ -822,7 +822,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     dr_time <- (drp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
     avmr_time <- (dravmp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                            sample2 = avmr_time,
                            effect = postgres_dravm,
                            result = a[i,2])
@@ -830,7 +830,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
 
     avmr_time <- (avmp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmr_time,
                                   effect = postgres_avm,
                                   result = a[i,3])
@@ -839,7 +839,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # AVM-D
     avmd_time <- (avmdp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmd_time,
                                   effect = postgres_avmd,
                                   result = a[i,4])
@@ -848,26 +848,26 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # RANDOM
     rand_time <- (randp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,5] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,5] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = rand_time,
                                   effect = postgres_rand,
                                   result = a[i,5])
 
     # Effect size for SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                        (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                         (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                         (rand %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                          (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
 
     # DR vs AVM-R U-test
     dr_time <- (drp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
     dravmp_time <- (dravmp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = dravmp_time,
                                   effect = sqlite_dravm,
                                   result = b[i,2])
@@ -875,7 +875,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # DR vs AVM-R U-test
     avmr_time <- (avmp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmr_time,
                                   effect = sqlite_avm,
                                   result = b[i,3])
@@ -883,7 +883,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # AVM-D u-test
     avmd_time <- (avmdp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmd_time,
                                   effect = sqlite_avmd,
                                   result = b[i,4])
@@ -891,26 +891,26 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # Random U-Test
     rand_time <- (randp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,5] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,5] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = rand_time,
                                   effect = sqlite_rand,
                                   result = b[i,5])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                                      (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                                       (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                                       (rand %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                                        (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
 
     # U-Test avm-r vs dr
     dr_time <- (drp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
     dravm_time <- (dravmp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = dravm_time,
                                   effect = hsql_dravm,
                                   result = c[i,2])
@@ -918,7 +918,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-r vs dr
     avmr_time <- (avmp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmr_time,
                                   effect = hsql_avm,
                                   result = c[i,3])
@@ -926,7 +926,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-d
     avmd_time <- (avmdp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmd_time,
                                   effect = hsql_avmd,
                                   result = c[i,4])
@@ -936,7 +936,7 @@ table_generator_timing <- function(d, rtrn = "tex", m = "median") {
     # Rnadom u-test
     rand_time <- (randp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,5] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,5] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = rand_time,
                                   effect = hsql_rand,
                                   result = c[i,5])
@@ -1000,7 +1000,7 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
   d3 <- d
   # Transform data with rounding down
   d1 <- d
-  # d1 <- dominoR::transform_execution_times_for_threshold(d, 1000)
+  # d1 <- dominoReplicate::transform_execution_times_for_threshold(d, 1000)
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>% dplyr::group_by(dbms, casestudy, datagenerator) %>% dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
@@ -1034,11 +1034,11 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
 
 
     # Effect size for PSQL
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                 (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                  (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                   (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
 
     # get generators for non-transformed
@@ -1051,7 +1051,7 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
     dr_time <- (drp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
     avmr_time <- (dravmp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmr_time,
                                           effect = postgres_dravm,
                                           result = a[i,2])
@@ -1059,7 +1059,7 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
 
     avmr_time <- (avmp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmr_time,
                                           effect = postgres_avm,
                                           result = a[i,3])
@@ -1068,25 +1068,25 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
     # AVM-D
     avmd_time <- (avmdp %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmd_time,
                                           effect = postgres_avmd,
                                           result = a[i,4])
 
 
     # Effect size for SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                               (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                 (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
 
     # DR vs AVM-R U-test
     dr_time <- (drp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
     dravmp_time <- (dravmp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = dravmp_time,
                                           effect = sqlite_dravm,
                                           result = b[i,2])
@@ -1094,7 +1094,7 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
     # DR vs AVM-R U-test
     avmr_time <- (avmp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmr_time,
                                           effect = sqlite_avm,
                                           result = b[i,3])
@@ -1102,24 +1102,24 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
     # AVM-D u-test
     avmd_time <- (avmdp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmd_time,
                                           effect = sqlite_avmd,
                                           result = b[i,4])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                             (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                              (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                               (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
 
     # U-Test avm-r vs dr
     dr_time <- (drp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
     dravm_time <- (dravmp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = dravm_time,
                                           effect = hsql_dravm,
                                           result = c[i,2])
@@ -1127,7 +1127,7 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-r vs dr
     avmr_time <- (avmp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmr_time,
                                           effect = hsql_avm,
                                           result = c[i,3])
@@ -1135,7 +1135,7 @@ table_generator_timing_nonRand_old <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-d
     avmd_time <- (avmdp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmd_time,
                                           effect = hsql_avmd,
                                           result = c[i,4])
@@ -1199,7 +1199,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
   d1 <- d
   # Transform data with rounding down
   # d3 <- d
-  # d1 <- dominoR::transform_execution_times_for_threshold(d, 1000)
+  # d1 <- dominoReplicate::transform_execution_times_for_threshold(d, 1000)
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>% dplyr::group_by(dbms, casestudy, datagenerator) %>% dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
@@ -1241,11 +1241,11 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
 
 
     # Effect size for PSQL
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                 (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                  (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                  (rand %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
 
 
@@ -1254,7 +1254,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
 
     avmr_time <- (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmr_time,
                                   effect = postgres_avm,
                                   result = a[i,2])
@@ -1263,7 +1263,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # AVM-D
     avmd_time <- (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmd_time,
                                   effect = postgres_avmd,
                                   result = a[i,3])
@@ -1272,17 +1272,17 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # RANDOM
     rand_time <- (rand %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = rand_time,
                                   effect = postgres_rand,
                                   result = a[i,4])
 
     # Effect size for SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                               (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                (rand %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
 
     # DR vs AVM-R U-test
@@ -1291,7 +1291,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # DR vs AVM-R U-test
     avmr_time <- (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmr_time,
                                   effect = sqlite_avm,
                                   result = b[i,2])
@@ -1299,7 +1299,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # AVM-D u-test
     avmd_time <- (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmd_time,
                                   effect = sqlite_avmd,
                                   result = b[i,3])
@@ -1307,17 +1307,17 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # Random U-Test
     rand_time <- (rand %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = rand_time,
                                   effect = sqlite_rand,
                                   result = b[i,4])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                             (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                              (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                              (rand %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
 
     # U-Test avm-r vs dr
@@ -1326,7 +1326,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-r vs dr
     avmr_time <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmr_time,
                                   effect = hsql_avm,
                                   result = c[i,2])
@@ -1334,7 +1334,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-d
     avmd_time <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmd_time,
                                   effect = hsql_avmd,
                                   result = c[i,3])
@@ -1344,7 +1344,7 @@ table_generator_timing_others <- function(d, rtrn = "tex", m = "median") {
     # Rnadom u-test
     rand_time <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = rand_time,
                                   effect = hsql_rand,
                                   result = c[i,4])
@@ -1408,7 +1408,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
   d1 <- d
   # Transform data with rounding down
   # d3 <- d
-  # d1 <- dominoR::transform_execution_times_for_threshold(d, 1000)
+  # d1 <- dominoReplicate::transform_execution_times_for_threshold(d, 1000)
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>% dplyr::group_by(dbms, casestudy, datagenerator) %>% dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
@@ -1450,11 +1450,11 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
 
 
     # Effect size for PSQL
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                 (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                  (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                  (rand %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
 
 
@@ -1463,7 +1463,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
 
     avmr_time <- (avm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmr_time,
                                           effect = postgres_avm,
                                           result = a[i,2])
@@ -1472,7 +1472,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # AVM-D
     avmd_time <- (avmd %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmd_time,
                                           effect = postgres_avmd,
                                           result = a[i,3])
@@ -1481,17 +1481,17 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # RANDOM
     rand_time <- (rand %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = rand_time,
                                           effect = postgres_rand,
                                           result = a[i,4])
 
     # Effect size for SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                               (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                (rand %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
 
     # DR vs AVM-R U-test
@@ -1500,7 +1500,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # DR vs AVM-R U-test
     avmr_time <- (avm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmr_time,
                                           effect = sqlite_avm,
                                           result = b[i,2])
@@ -1508,7 +1508,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # AVM-D u-test
     avmd_time <- (avmd %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmd_time,
                                           effect = sqlite_avmd,
                                           result = b[i,3])
@@ -1516,17 +1516,17 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # Random U-Test
     rand_time <- (rand %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = rand_time,
                                           effect = sqlite_rand,
                                           result = b[i,4])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                             (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                              (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                              (rand %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
 
     # U-Test avm-r vs dr
@@ -1535,7 +1535,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-r vs dr
     avmr_time <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmr_time,
                                           effect = hsql_avm,
                                           result = c[i,2])
@@ -1543,7 +1543,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # U-Test avm-d
     avmd_time <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,3] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,3] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = avmd_time,
                                           effect = hsql_avmd,
                                           result = c[i,3])
@@ -1553,7 +1553,7 @@ table_generator_timing_nonRandom <- function(d, rtrn = "tex", m = "median") {
     # Rnadom u-test
     rand_time <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,4] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,4] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                           sample2 = rand_time,
                                           effect = hsql_rand,
                                           result = c[i,4])
@@ -1623,7 +1623,7 @@ table_generator_timing_domino <- function(d, rtrn = "tex", m = "median") {
   # d3 <- d
   # copy values for Sig without transforming
   d1 <- d
-  # d1 <- dominoR::transform_execution_times_for_threshold(d, 1000)
+  # d1 <- dominoReplicate::transform_execution_times_for_threshold(d, 1000)
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>%
@@ -1662,40 +1662,40 @@ table_generator_timing_domino <- function(d, rtrn = "tex", m = "median") {
     #dravmp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
 
     # Effect size for PSQL
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                   (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
 
     dr_time <- (dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
     avmr_time <- (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    a[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = avmr_time,
                                   effect = postgres_dravm,
                                   result = a[i,2])
 
 
     # Effect size for SQLite
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                 (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
 
     # DR vs AVM-R U-test
     dr_time <- (dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
     dravmp_time <- (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = dravmp_time,
                                   effect = sqlite_dravm,
                                   result = b[i,2])
 
     # Effect size for HSQL
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                               (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
 
     # U-Test avm-r vs dr
     dr_time <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
     dravm_time <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = dravm_time,
                                   effect = hsql_dravm,
                                   result = c[i,2])
@@ -1761,7 +1761,7 @@ table_generator_timing_domino_flipped <- function(d, rtrn = "tex", m = "median")
   # d3 <- d
   # copy values for Sig without transforming
   d1 <- d
-  # d1 <- dominoR::transform_execution_times_for_threshold(d, 1000)
+  # d1 <- dominoReplicate::transform_execution_times_for_threshold(d, 1000)
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>%
@@ -1803,40 +1803,40 @@ table_generator_timing_domino_flipped <- function(d, rtrn = "tex", m = "median")
     #dravmp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "dravm")
 
     # Effect size for PSQL
-    postgres_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime,
                                                   (dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime)$size
 
     dr_time <- (dr %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
     avmr_time <- (dravm %>% dplyr::filter(dbms == "Postgres"))$testgenerationtime
 
-    a[i,2] = dominoR::comparing_sig_timing(sample1 = avmr_time,
+    a[i,2] = dominoReplicate::comparing_sig_timing(sample1 = avmr_time,
                                           sample2 = dr_time,
                                           effect = postgres_dravm,
                                           result = a[i,2])
 
 
     # Effect size for SQLite
-    sqlite_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                 (dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
 
     # DR vs AVM-R U-test
     dr_time <- (dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
     dravmp_time <- (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,2] = dominoR::comparing_sig_timing(sample1 = dravmp_time,
+    b[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dravmp_time,
                                           sample2 = dr_time,
                                           effect = sqlite_dravm,
                                           result = b[i,2])
 
     # Effect size for HSQL
-    hsql_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                               (dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
 
     # U-Test avm-r vs dr
     dr_time <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
     dravm_time <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,2] = dominoR::comparing_sig_timing(sample1 = dravm_time,
+    c[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dravm_time,
                                           sample2 = dr_time,
                                           effect = hsql_dravm,
                                           result = c[i,2])
@@ -1892,7 +1892,7 @@ table_generator_timing_hsql <- function(d, rtrn = "tex", m = "median") {
   d3 <- d
   # Transform data with rounding down
   d1 <- d
-  # d1 <- dominoR::transform_execution_times_for_threshold(d, 1000)
+  # d1 <- dominoReplicate::transform_execution_times_for_threshold(d, 1000)
   # generate a DF for mean or median
   if (m == "mean") {
     d <- d %>% dplyr::select(dbms, casestudy, datagenerator, testgenerationtime, randomseed) %>% dplyr::group_by(dbms, casestudy, datagenerator) %>% dplyr::summarise(testgenerationtime = format(round((mean(testgenerationtime) / 1000), 2), nsmall = 2))
@@ -1929,14 +1929,14 @@ table_generator_timing_hsql <- function(d, rtrn = "tex", m = "median") {
     dravmp <- d3 %>% dplyr::filter(casestudy == schema, datagenerator == "concentroAVS")
 
     # Effect size for SQLite
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime,
                                                          (dravm %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime)$size
 
     # DR vs AVM-R U-test
     dr_time <- (drp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
     dravmp_time <- (dravmp %>% dplyr::filter(dbms == "SQLite"))$testgenerationtime
 
-    b[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    b[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = dravmp_time,
                                   effect = sqlite_dravm,
                                   result = b[i,2])
@@ -1944,14 +1944,14 @@ table_generator_timing_hsql <- function(d, rtrn = "tex", m = "median") {
 
 
     # Effect size for HSQL
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime,
                                                        (dravm %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime)$size
 
     # U-Test avm-r vs dr
     dr_time <- (drp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
     dravm_time <- (dravmp %>% dplyr::filter(dbms == "HyperSQL"))$testgenerationtime
 
-    c[i,2] = dominoR::comparing_sig_timing(sample1 = dr_time,
+    c[i,2] = dominoReplicate::comparing_sig_timing(sample1 = dr_time,
                                   sample2 = dravm_time,
                                   effect = hsql_dravm,
                                   result = c[i,2])
@@ -2041,20 +2041,20 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
 
 
     # PSQL A12
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                          (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                           (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                           (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                            (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
 
     # DR vs dravm
     dr_mutation <- (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                           sample2 = dravm_mutation,
                           effect = postgres_dravm,
                           result = a[i,2])
@@ -2062,7 +2062,7 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # DR vs AVM-r
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmr_mutation,
                            effect = postgres_avm,
                            result = a[i,3])
@@ -2070,7 +2070,7 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # AVM-D vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmd_mutation,
                            effect = postgres_avmd,
                            result = a[i,4])
@@ -2079,26 +2079,26 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,5] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,5] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = rand_mutation,
                            effect = postgres_rand,
                            result = a[i,5])
 
     # A12 SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                        (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                         (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                         (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                          (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
 
     # Dr vs DRAVM
     dr_mutation <- (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = dravm_mutation,
                            effect = sqlite_dravm,
                            result = b[i,2])
@@ -2106,7 +2106,7 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # Dr vs AVM-R
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmr_mutation,
                            effect = sqlite_avm,
                            result = b[i,3])
@@ -2114,7 +2114,7 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmd_mutation,
                            effect = sqlite_avmd,
                            result = b[i,4])
@@ -2122,33 +2122,33 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,5] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,5] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = rand_mutation,
                            effect = sqlite_rand,
                            result = b[i,5])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                                      (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                                       (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                                       (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                                        (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
 
     # DR vs AVMR
     dr_mutation <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = dravm_mutation,
                            effect = hsql_dravm,
                            result = c[i,2])
     # DR vs AVMR
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmr_mutation,
                            effect = hsql_avm,
                            result = c[i,3])
@@ -2156,7 +2156,7 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmd_mutation,
                            effect = hsql_avmd,
                            result = c[i,4])
@@ -2164,7 +2164,7 @@ table_generator_mutation_score <- function(d, rtrn = "tex", m = "median") {
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,5] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,5] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = rand_mutation,
                            effect = hsql_rand,
                            result = c[i,5])
@@ -2252,18 +2252,18 @@ table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median")
 
 
     # PSQL A12
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                 (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                  (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                   (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
 
     # DR vs dravm
     dr_mutation <- (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = dravm_mutation,
                                    effect = postgres_dravm,
                                    result = a[i,2])
@@ -2271,7 +2271,7 @@ table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median")
     # DR vs AVM-r
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmr_mutation,
                                    effect = postgres_avm,
                                    result = a[i,3])
@@ -2279,24 +2279,24 @@ table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median")
     # AVM-D vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmd_mutation,
                                    effect = postgres_avmd,
                                    result = a[i,4])
 
     # A12 SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                               (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                 (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
 
     # Dr vs DRAVM
     dr_mutation <- (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = dravm_mutation,
                                    effect = sqlite_dravm,
                                    result = b[i,2])
@@ -2304,7 +2304,7 @@ table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median")
     # Dr vs AVM-R
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmr_mutation,
                                    effect = sqlite_avm,
                                    result = b[i,3])
@@ -2312,31 +2312,31 @@ table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median")
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmd_mutation,
                                    effect = sqlite_avmd,
                                    result = b[i,4])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                             (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                              (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                               (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
 
     # DR vs AVMR
     dr_mutation <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = dravm_mutation,
                                    effect = hsql_dravm,
                                    result = c[i,2])
     # DR vs AVMR
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmr_mutation,
                                    effect = hsql_avm,
                                    result = c[i,3])
@@ -2344,7 +2344,7 @@ table_generator_mutation_score_nonrnd <- function(d, rtrn = "tex", m = "median")
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmd_mutation,
                                    effect = hsql_avmd,
                                    result = c[i,4])
@@ -2430,11 +2430,11 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
 
 
     # PSQL A12
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                 (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                  (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                  (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
 
     # DR vs dravm
@@ -2443,7 +2443,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # DR vs AVM-r
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmr_mutation,
                            effect = postgres_avm,
                            result = a[i,2])
@@ -2451,7 +2451,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # AVM-D vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmd_mutation,
                            effect = postgres_avmd,
                            result = a[i,3])
@@ -2460,17 +2460,17 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = rand_mutation,
                            effect = postgres_rand,
                            result = a[i,4])
 
     # A12 SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                               (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
 
     # Dr vs DRAVM
@@ -2479,7 +2479,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # Dr vs AVM-R
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmr_mutation,
                            effect = sqlite_avm,
                            result = b[i,2])
@@ -2487,7 +2487,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmd_mutation,
                            effect = sqlite_avmd,
                            result = b[i,3])
@@ -2495,17 +2495,17 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = rand_mutation,
                            effect = sqlite_rand,
                            result = b[i,4])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                             (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                              (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                              (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
 
     # DR vs AVMR
@@ -2513,7 +2513,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # DR vs AVMR
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmr_mutation,
                            effect = hsql_avm,
                            result = c[i,2])
@@ -2521,7 +2521,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = avmd_mutation,
                            effect = hsql_avmd,
                            result = c[i,3])
@@ -2529,7 +2529,7 @@ table_generator_mutation_score_others <- function(d, rtrn = "tex", m = "median")
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = rand_mutation,
                            effect = hsql_rand,
                            result = c[i,4])
@@ -2615,11 +2615,11 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
 
 
     # PSQL A12
-    postgres_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                 (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                  (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
-    postgres_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                  (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
 
     # DR vs dravm
@@ -2628,7 +2628,7 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # DR vs AVM-r
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmr_mutation,
                                    effect = postgres_avm,
                                    result = a[i,2])
@@ -2636,7 +2636,7 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # AVM-D vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmd_mutation,
                                    effect = postgres_avmd,
                                    result = a[i,3])
@@ -2645,17 +2645,17 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = rand_mutation,
                                    effect = postgres_rand,
                                    result = a[i,4])
 
     # A12 SQLite
-    sqlite_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                               (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
-    sqlite_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
 
     # Dr vs DRAVM
@@ -2664,7 +2664,7 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # Dr vs AVM-R
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmr_mutation,
                                    effect = sqlite_avm,
                                    result = b[i,2])
@@ -2672,7 +2672,7 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmd_mutation,
                                    effect = sqlite_avmd,
                                    result = b[i,3])
@@ -2680,17 +2680,17 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = rand_mutation,
                                    effect = sqlite_rand,
                                    result = b[i,4])
 
     # Effect size for HSQL
-    hsql_avm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                             (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_avmd <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_avmd <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                              (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
-    hsql_rand <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_rand <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                              (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
 
     # DR vs AVMR
@@ -2698,7 +2698,7 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # DR vs AVMR
     avmr_mutation <- (avm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmr_mutation,
                                    effect = hsql_avm,
                                    result = c[i,2])
@@ -2706,7 +2706,7 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # AVMD vs DR
     avmd_mutation <- (avmd %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,3] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,3] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = avmd_mutation,
                                    effect = hsql_avmd,
                                    result = c[i,3])
@@ -2714,7 +2714,7 @@ table_generator_mutation_score_nonRandom <- function(d, rtrn = "tex", m = "media
     # Random vs DR
     rand_mutation <- (rand %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,4] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,4] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                                    sample2 = rand_mutation,
                                    effect = hsql_rand,
                                    result = c[i,4])
@@ -2808,42 +2808,42 @@ table_generator_mutation_score_domino <- function(d, rtrn = "tex", m = "median")
 
 
     # PSQL A12
-    postgres_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                   (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
 
     # DR vs dravm
     dr_mutation <- (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = dravm_mutation,
                            effect = postgres_dravm,
                            result = a[i,2])
 
 
     # A12 SQLite
-    sqlite_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                 (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
 
     # Dr vs DRAVM
     dr_mutation <- (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = dravm_mutation,
                            effect = sqlite_dravm,
                            result = b[i,2])
 
 
     # Effect size for HSQL
-    hsql_dravm <- dominoR::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                               (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
 
     # DR vs AVMR
     dr_mutation <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dr_mutation,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dr_mutation,
                            sample2 = dravm_mutation,
                            effect = hsql_dravm,
                            result = c[i,2])
@@ -2935,42 +2935,42 @@ table_generator_mutation_score_domino_flipped <- function(d, rtrn = "tex", m = "
 
 
     # PSQL A12
-    postgres_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
+    postgres_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore,
                                                   (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore)$size
 
     # DR vs dravm
     dr_mutation <- (dr %>% dplyr::filter(dbms == "Postgres"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "Postgres"))$mutationScore
 
-    a[i,2] = dominoR::comparing_sig(sample1 = dravm_mutation,
+    a[i,2] = dominoReplicate::comparing_sig(sample1 = dravm_mutation,
                                    sample2 = dr_mutation,
                                    effect = postgres_dravm,
                                    result = a[i,2])
 
 
     # A12 SQLite
-    sqlite_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
+    sqlite_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore,
                                                 (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore)$size
 
     # Dr vs DRAVM
     dr_mutation <- (dr %>% dplyr::filter(dbms == "SQLite"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "SQLite"))$mutationScore
 
-    b[i,2] = dominoR::comparing_sig(sample1 = dravm_mutation,
+    b[i,2] = dominoReplicate::comparing_sig(sample1 = dravm_mutation,
                                    sample2 = dr_mutation,
                                    effect = sqlite_dravm,
                                    result = b[i,2])
 
 
     # Effect size for HSQL
-    hsql_dravm <- dominoR::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
+    hsql_dravm <- dominoReplicate::effectsize_accurate((dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore,
                                               (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore)$size
 
     # DR vs AVMR
     dr_mutation <- (dr %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
     dravm_mutation <- (dravm %>% dplyr::filter(dbms == "HyperSQL"))$mutationScore
 
-    c[i,2] = dominoR::comparing_sig(sample1 = dravm_mutation,
+    c[i,2] = dominoReplicate::comparing_sig(sample1 = dravm_mutation,
                                    sample2 = dr_mutation,
                                    effect = hsql_dravm,
                                    result = c[i,2])
@@ -3062,9 +3062,9 @@ table_generator_mutant_operators <- function(d, rtrn = "tex", m = "median") {
     hsql_rand <- d1 %>% dplyr::filter(operator == selected_operator, dbms == "HyperSQL", datagenerator == "random")
 
     # A12 for PSQL
-    postgres_avm_effectsize <- dominoR::effectsize_accurate(postgres_dr$mutationScore, postgres_avm$mutationScore)$size
-    postgres_avmd_effectsize <- dominoR::effectsize_accurate(postgres_dr$mutationScore, postgres_avmd$mutationScore)$size
-    postgres_rand_effectsize <- dominoR::effectsize_accurate(postgres_dr$mutationScore, postgres_rand$mutationScore)$size
+    postgres_avm_effectsize <- dominoReplicate::effectsize_accurate(postgres_dr$mutationScore, postgres_avm$mutationScore)$size
+    postgres_avmd_effectsize <- dominoReplicate::effectsize_accurate(postgres_dr$mutationScore, postgres_avmd$mutationScore)$size
+    postgres_rand_effectsize <- dominoReplicate::effectsize_accurate(postgres_dr$mutationScore, postgres_rand$mutationScore)$size
 
     # Sig for DR vs AVMR
     dr_mutation <- postgres_dr$mutationScore
@@ -3136,9 +3136,9 @@ table_generator_mutant_operators <- function(d, rtrn = "tex", m = "median") {
     }
 
     # A12 for SQLite
-    sqlite_avm_effectsize <- dominoR::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avm$mutationScore)$size
-    sqlite_avmd_effectsize <- dominoR::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avmd$mutationScore)$size
-    sqlite_rand_effectsize <- dominoR::effectsize_accurate(sqlite_dr$mutationScore, sqlite_rand$mutationScore)$size
+    sqlite_avm_effectsize <- dominoReplicate::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avm$mutationScore)$size
+    sqlite_avmd_effectsize <- dominoReplicate::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avmd$mutationScore)$size
+    sqlite_rand_effectsize <- dominoReplicate::effectsize_accurate(sqlite_dr$mutationScore, sqlite_rand$mutationScore)$size
 
     # U-test dr vs avm-r
     dr_mutation <- sqlite_dr$mutationScore
@@ -3211,9 +3211,9 @@ table_generator_mutant_operators <- function(d, rtrn = "tex", m = "median") {
     }
 
     # A12 for HSQL
-    hsql_avm_effectsize <- dominoR::effectsize_accurate(hsql_dr$mutationScore, hsql_avm$mutationScore)$size
-    hsql_avmd_effectsize <- dominoR::effectsize_accurate(hsql_dr$mutationScore, hsql_avmd$mutationScore)$size
-    hsql_rand_effectsize <- dominoR::effectsize_accurate(hsql_dr$mutationScore, hsql_rand$mutationScore)$size
+    hsql_avm_effectsize <- dominoReplicate::effectsize_accurate(hsql_dr$mutationScore, hsql_avm$mutationScore)$size
+    hsql_avmd_effectsize <- dominoReplicate::effectsize_accurate(hsql_dr$mutationScore, hsql_avmd$mutationScore)$size
+    hsql_rand_effectsize <- dominoReplicate::effectsize_accurate(hsql_dr$mutationScore, hsql_rand$mutationScore)$size
 
     # U-test for DR vs AVM-R
     dr_mutation <- hsql_dr$mutationScore
@@ -3363,10 +3363,10 @@ table_generator_mutant_operators_domino <- function(d, rtrn = "tex", m = "median
     hsql_dravm <- d1 %>% dplyr::filter(operator == selected_operator, dbms == "HyperSQL", datagenerator == "dravm")
 
     # A12 for PSQL
-    postgres_avm_effectsize <- dominoR::effectsize_accurate(postgres_dr$mutationScore, postgres_avm$mutationScore)$size
-    postgres_avmd_effectsize <- dominoR::effectsize_accurate(postgres_dr$mutationScore, postgres_avmd$mutationScore)$size
-    postgres_rand_effectsize <- dominoR::effectsize_accurate(postgres_dr$mutationScore, postgres_rand$mutationScore)$size
-    postgres_dravm_effectsize <- dominoR::effectsize_accurate(postgres_dr$mutationScore, postgres_dravm$mutationScore)$size
+    postgres_avm_effectsize <- dominoReplicate::effectsize_accurate(postgres_dr$mutationScore, postgres_avm$mutationScore)$size
+    postgres_avmd_effectsize <- dominoReplicate::effectsize_accurate(postgres_dr$mutationScore, postgres_avmd$mutationScore)$size
+    postgres_rand_effectsize <- dominoReplicate::effectsize_accurate(postgres_dr$mutationScore, postgres_rand$mutationScore)$size
+    postgres_dravm_effectsize <- dominoReplicate::effectsize_accurate(postgres_dr$mutationScore, postgres_dravm$mutationScore)$size
 
     # Sig for DR vs AVMR
     dr_mutation <- postgres_dr$mutationScore
@@ -3438,10 +3438,10 @@ table_generator_mutant_operators_domino <- function(d, rtrn = "tex", m = "median
     }
 
     # A12 for SQLite
-    sqlite_avm_effectsize <- dominoR::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avm$mutationScore)$size
-    sqlite_avmd_effectsize <- dominoR::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avmd$mutationScore)$size
-    sqlite_rand_effectsize <- dominoR::effectsize_accurate(sqlite_dr$mutationScore, sqlite_rand$mutationScore)$size
-    sqlite_dravm_effectsize <- dominoR::effectsize_accurate(sqlite_dr$mutationScore, sqlite_dravm$mutationScore)$size
+    sqlite_avm_effectsize <- dominoReplicate::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avm$mutationScore)$size
+    sqlite_avmd_effectsize <- dominoReplicate::effectsize_accurate(sqlite_dr$mutationScore, sqlite_avmd$mutationScore)$size
+    sqlite_rand_effectsize <- dominoReplicate::effectsize_accurate(sqlite_dr$mutationScore, sqlite_rand$mutationScore)$size
+    sqlite_dravm_effectsize <- dominoReplicate::effectsize_accurate(sqlite_dr$mutationScore, sqlite_dravm$mutationScore)$size
 
     # U-test dr vs avm-r
     dr_mutation <- sqlite_dr$mutationScore
@@ -3514,10 +3514,10 @@ table_generator_mutant_operators_domino <- function(d, rtrn = "tex", m = "median
     }
 
     # A12 for HSQL
-    hsql_avm_effectsize <- dominoR::effectsize_accurate(hsql_dr$mutationScore, hsql_avm$mutationScore)$size
-    hsql_avmd_effectsize <- dominoR::effectsize_accurate(hsql_dr$mutationScore, hsql_avmd$mutationScore)$size
-    hsql_rand_effectsize <- dominoR::effectsize_accurate(hsql_dr$mutationScore, hsql_rand$mutationScore)$size
-    hsql_dravm_effectsize <- dominoR::effectsize_accurate(hsql_dr$mutationScore, hsql_dravm$mutationScore)$size
+    hsql_avm_effectsize <- dominoReplicate::effectsize_accurate(hsql_dr$mutationScore, hsql_avm$mutationScore)$size
+    hsql_avmd_effectsize <- dominoReplicate::effectsize_accurate(hsql_dr$mutationScore, hsql_avmd$mutationScore)$size
+    hsql_rand_effectsize <- dominoReplicate::effectsize_accurate(hsql_dr$mutationScore, hsql_rand$mutationScore)$size
+    hsql_dravm_effectsize <- dominoReplicate::effectsize_accurate(hsql_dr$mutationScore, hsql_dravm$mutationScore)$size
 
 
     # U-test for DR vs AVM-R
@@ -4182,7 +4182,7 @@ ordering_mutants_per_operator_domino <- function(d) {
   return(dt)
 }
 
-#' FUNCTION: dominoR::comparing_sig
+#' FUNCTION: dominoReplicate::comparing_sig
 #'
 #'
 #' @return latex of cell
@@ -4216,7 +4216,7 @@ comparing_sig <- function(sample1, sample2, effect, result) {
 }
 
 
-#' FUNCTION: dominoR::comparing_sig_timing
+#' FUNCTION: dominoReplicate::comparing_sig_timing
 #'
 #'
 #' @return latex of cell

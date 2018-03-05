@@ -1,4 +1,4 @@
 library(testthat)
-library(dominoR)
+library(dominoReplicate)
 
-test_check("dominoR")
+test_check("dominoReplicate")
